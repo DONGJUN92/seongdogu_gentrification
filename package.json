@@ -1,0 +1,14 @@
+{
+  "name": "seongsu-policy-observatory",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "성수동 상권 변화와 정책 검토 근거를 연결하는 연구용 웹앱",
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "preview": "node scripts/serve.mjs dist"
+  },
+  "engines": { "node": ">=22" }
+}

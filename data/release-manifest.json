@@ -1,0 +1,32 @@
+{
+  "builtFor": "DONGJUN92/seongdogu_gentrification",
+  "researchDate": "2026-10-12",
+  "sourceHashes": {
+    "outputs/seongdong_gis_release_20261011/dashboard-data.json": "0b7d09bf77f75b251225ad1654ee40c28d769346a1e5a7a20d33cd88816c1a85",
+    "outputs/seongdong_card_map_validation_20261011/map_cell_review_2026_03.csv": "1be3113b75465c4126a6c61faafe61e19b0d6d5a0714f1ccb07d6f2d93e05647",
+    "outputs/seongdong_sequential_followup_20261012/stage1_policy/official_entry_restriction_parcel_rows.csv": "68a7508da57d0a563fea7699c3f7cb5cc1bb65e5594c5c7cf4aeee0113a6eaf9"
+  },
+  "files": {
+    "data/observatory.json": {
+      "bytes": 1065065,
+      "sha256": "c27536a93cf779f0b9c76fc8073f9b4795eb82aa96b8dc9605838d9c1145fdb9"
+    },
+    "data/parcels.json": {
+      "bytes": 73056,
+      "sha256": "07d3e9692100549030f285c57684805d78227d8284dbabb502fb9f0c5ddadaa3"
+    },
+    "assets/seongdong-map.webp": {
+      "bytes": 373246,
+      "sha256": "130f7cf995d82c584434486fc8304784e6b497e63c9ff1b7c97ea2280d6d3b65"
+    }
+  },
+  "excluded": [
+    "raw card amounts and transactions",
+    "merchant names/addresses/IDs",
+    "financial/lease documents",
+    "API credentials",
+    "private source files",
+    "individual eligibility results",
+    "local notes"
+  ]
+}
