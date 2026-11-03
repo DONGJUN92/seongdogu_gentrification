@@ -1,49 +1,27 @@
-export const STAGES = {
-  P0: { name: '자료 부족 · 유보', color: '#a9b4b5', short: '유보' },
-  S0: { name: '뚜렷한 복합신호 없음', color: '#78a78f', short: '복합신호 없음' },
-  S1: { name: '변화 관찰', color: '#8aafbe', short: '변화 관찰' },
-  S2: { name: '개별 악화신호', color: '#d8bc73', short: '개별신호' },
-  S3: { name: '복합 악화신호', color: '#cb8b65', short: '복합신호' },
-  S4: { name: '복합신호 지속 · 검증 필요', color: '#ac6c6b', short: '지속 관측' },
-};
 export const NAV = [
-  ['overview', '개요', 'home'], ['grades', '등급 모니터링', 'shield'], ['map', '상권 현황 지도', 'map'],
-  ['variables','지표·변수 조회','chart'], ['policy', '정책 적용 범위', 'layers'], ['evidence', '연구 근거', 'chart'], ['review', '검토 기록', 'file'],
+  ['overview', '개요', 'home'], ['grades', '등급 모니터링', 'shield'], ['policy', '정책 적용 범위', 'layers'], ['evidence', '연구 근거', 'chart'], ['review', '검토 기록', 'file'],
 ];
 export const SOURCES = [
-  { id: 'plan', label: '2026 지속가능발전계획', org: '성동구', date: '2026.09.23', url: 'https://www.sd.go.kr/main/selectBbsNttView.do?bbsNo=184&key=1473&nttNo=361632', note: '전체 구역과 부분 입점 제한을 구분한 공식 계획' },
-  { id: 'support', label: '안심상가 5·11호점 모집 공고', org: '성동구', date: '2025.11.24', url: 'https://www.sd.go.kr/main/selectBbsNttView.do?bbsNo=184&nttNo=353836&key=1473', note: '종료된 모집의 심사 기준 사례 · 현재 신청 공고 아님' },
-  { id: 'data', label: '상권자료 제공 범위와 일정', org: '서울시', date: '공급자 안내', url: 'https://golmok.seoul.go.kr/introduce.do', note: '공개 분기자료 일정 · 사적 월별 파일의 실제 수령일은 별도' },
-  { id: 'equivalence', label: '동등성 검정의 원리', org: 'Lakens (2017)', date: '방법론', url: 'https://journals.sagepub.com/doi/10.1177/1948550617697177', note: '비유의성을 효과 부재로 해석하지 않는 근거' },
-  { id: 'spatialcv', label: '시공간 구조를 고려한 평가', org: 'Roberts et al. (2017)', date: '방법론', url: 'https://doi.org/10.1111/ecog.02881', note: '목적에 맞는 시간·공간 검증 설계' },
+  { id: 'plan', label: '2026 지속가능발전계획', org: '성동구', date: '2026.09.23', url: 'https://www.sd.go.kr/main/selectBbsNttView.do?bbsNo=184&key=1473&nttNo=361632', note: '지속가능발전구역 전체와 입점 제한 구역을 구분해 정한 공식 계획' },
+  { id: 'support', label: '안심상가 5·11호점 모집 공고', org: '성동구', date: '2025.11.24', url: 'https://www.sd.go.kr/main/selectBbsNttView.do?bbsNo=184&nttNo=353836&key=1473', note: '마감된 모집의 심사 기준 사례(현재 신청 공고 아님)' },
+  { id: 'data', label: '상권분석서비스 자료 제공 범위와 일정', org: '서울시', date: '제공기관 안내', url: 'https://golmok.seoul.go.kr/introduce.do', note: '분기 자료 공개 일정 안내(실제 자료 수령일은 기관별로 다름)' },
+  { id: 'equivalence', label: '동등성 검정의 원리', org: 'Lakens (2017)', date: '분석 방법', url: 'https://journals.sagepub.com/doi/10.1177/1948550617697177', note: '통계적으로 유의하지 않다는 결과를 효과가 없다는 뜻으로 해석하지 않는 근거' },
+  { id: 'spatialcv', label: '시간·공간 구조를 고려한 예측 평가', org: 'Roberts et al. (2017)', date: '분석 방법', url: 'https://doi.org/10.1111/ecog.02881', note: '예측 목적에 맞게 시간·공간을 나누어 검증하는 방법' },
 ];
 export const CHECKS = [
-  { id: 'scope', title: '적용 제도·시점 구분', description: '전체 지속가능발전구역·부분 입점 제한·개별 지원사업 구분', source: 'plan' },
-  { id: 'boundary', title: '필지 경계 확인', description: '참고 도면·지번표만으로 측량·개별 적용 여부 확정 불가', source: 'plan' },
-  { id: 'time', title: '관측·검토 시점 대조', description: '종합지도 2026.03·카드 비교 2026.06–08·정책 계획 2026.09의 시점 구분', source: 'data' },
-  { id: 'criteria', title: '개별 심사 증빙 확인', description: '집계구 지표의 신청인 계약·재무·고용 증빙 대체 불가', source: 'support' },
-  { id: 'uncertainty', title: '민감도·자료 누락 확인', description: '단계 변동 범위·미관측 자료 검토. 판정 유보와 안정 판정 구분.', source: 'equivalence' },
-  { id: 'future', title: '과거 결과·미래 예측 구분', description: '정책 활용 검증·승인 미래예측 미확보', source: 'spatialcv' },
+  { id: 'scope', title: '적용 제도와 시점 구분', description: '지속가능발전구역 전체, 입점 제한 구역, 개별 지원사업을 구분합니다.', source: 'plan' },
+  { id: 'boundary', title: '필지 경계 확인', description: '참고 도면과 지번표만으로는 측량 경계와 개별 적용 여부를 확정할 수 없습니다.', source: 'plan' },
+  { id: 'time', title: '자료 시점 확인', description: '등급 기준 분기(2026년 1분기), 카드 자료(2026년 8월), 정책 계획(2026년 9월)의 시점 차이를 확인합니다.', source: 'data' },
+  { id: 'criteria', title: '개별 심사 증빙 확인', description: '행정동·격자 지표로 신청인의 계약·재무·고용 증빙을 대신할 수 없습니다.', source: 'support' },
+  { id: 'uncertainty', title: '자료 부족·등급 변동 확인', description: '자료 부족으로 등급이 없는 지역과 분기마다 등급이 바뀌는 지역을 따로 확인합니다.', source: 'data' },
+  { id: 'future', title: '실제 등급과 예측 구분', description: '다음 분기 예측은 적중률 56% 수준의 참고 정보이므로, 실제 등급을 확인한 뒤 판단합니다.', source: 'spatialcv' },
 ];
-export const EVIDENCE_GAPS = ['정확한 법정 경계와 개별 적용 요건', '독립적인 신청인·피해 증빙', '정책 허용손실과 오판 기준', '실제 수령판본으로 검증한 미래 예측'];
+export const EVIDENCE_GAPS = ['정확한 법정 경계와 개별 적용 요건', '신청인별 임대차 피해 증빙', '정책상 허용할 손실과 오판 기준', '다음 분기 이후 실제 자료로 확인한 예측 적중률'];
 export function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
-export function recordAt(data, id, month) { return data.records[id]?.find(r => r.month === month) || null; }
-export function metricSummary(data, month, dong = 'all', scope = 'seongdong') {
-  const grids = data.grids.filter(g => (scope !== 'seongsu' || g.seongsu) && (dong === 'all' || g.adminLinks.some(a=>a.dong_name===dong)));
-  const counts = Object.fromEntries(Object.keys(STAGES).map(k => [k, 0]));
-  let stable = 0, stabilityN = 0;
-  for (const g of grids) {
-    const r = recordAt(data, g.id, month); counts[r?.stage || 'P0']++;
-    if (month === '2026-03' && r?.stage !== 'P0') { stabilityN++; if (g.stabilityMarch.stable) stable++; }
-  }
-  return { total: grids.length, counts, observed: grids.length - counts.P0, complex: counts.S3 + counts.S4, stable, stabilityN };
-}
-export function stabilityFor(grid, month) { return month === '2026-03' ? grid.stabilityMarch : null; }
 export function pathFor(geometry) {
   const polygons = geometry.type === 'Polygon' ? [geometry.coordinates] : geometry.coordinates;
   return polygons.map(poly => poly.map(ring => ring.map((p, i) => `${i ? 'L' : 'M'}${p[0]},${p[1]}`).join(' ') + ' Z').join(' ')).join(' ');
 }
-export function percent(value) { return value == null || !Number.isFinite(value) ? '미확인' : `${(value * 100).toFixed(1)}%`; }
 export function normalizeParcel(query) {
   const match = query.trim().replace(/[－–—]/g, '-').match(/(?:서울(?:특별시)?\s*)?(?:성동구\s*)?성수동\s*([12])가\s*(\d+)\s*-\s*(\d+)/);
   return match ? `성수동${match[1]}가|${Number(match[2])}|${Number(match[3])}` : null;
@@ -52,24 +30,27 @@ export function findParcels(parcels, query, street = 'all') {
   const text = query.trim(); const key = normalizeParcel(text);
   return parcels.filter(p => (street === 'all' || p.street === street) && (!text || (key ? p.key === key : `${p.dong} ${p.main}-${p.sub} ${p.street}`.includes(text))));
 }
-export function parcelStatus(parcel) { return parcel.planned ? '2026.12.01 시행 예정으로 기재' : '기존 제한구역 지번표에 기재'; }
-export function defaultNote() { return { version: 1, purpose: '지역 지정 검토', title: '', note: '', checked: [], selected: [], selectedMonths: {}, updatedAt: null }; }
-export function sanitizeNote(raw, validIds = [], validMonths = []) {
-  const base = defaultNote(); if (!raw || raw.version !== 1) return base;
-  return { ...base, purpose: ['지역 지정 검토', '지원 심사 근거 검토'].includes(raw.purpose) ? raw.purpose : base.purpose,
+// 검토 기록: 등록 단위는 'D:행정동코드'(행정동), 분기는 'YYYYQn'. 이전 판(version 1, 격자·월 단위)은 제목·메모·체크만 옮긴다.
+export function defaultNote() { return { version: 2, purpose: '지역 지정 검토', title: '', note: '', checked: [], selected: [], selectedQuarters: {}, updatedAt: null }; }
+export function sanitizeNote(raw, validIds = [], validQuarters = []) {
+  const base = defaultNote(); if (!raw || ![1, 2].includes(raw.version)) return base;
+  const keep = { purpose: ['지역 지정 검토', '지원 심사 근거 검토'].includes(raw.purpose) ? raw.purpose : base.purpose,
     title: String(raw.title || '').slice(0, 120), note: String(raw.note || '').slice(0, 5000),
     checked: [...new Set(Array.isArray(raw.checked) ? raw.checked.filter(id => CHECKS.some(c => c.id === id)) : [])],
-    selected: [...new Set(Array.isArray(raw.selected) ? raw.selected.filter(id => validIds.includes(id)) : [])].slice(0, 12),
-    selectedMonths: Object.fromEntries(Object.entries(raw.selectedMonths && typeof raw.selectedMonths === 'object' ? raw.selectedMonths : {}).filter(([id,month]) => validIds.includes(id) && validMonths.includes(month))),
     updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : null };
+  if (raw.version === 1) return { ...base, ...keep };
+  return { ...base, ...keep,
+    selected: [...new Set(Array.isArray(raw.selected) ? raw.selected.filter(id => validIds.includes(id)) : [])].slice(0, 12),
+    selectedQuarters: Object.fromEntries(Object.entries(raw.selectedQuarters && typeof raw.selectedQuarters === 'object' ? raw.selectedQuarters : {}).filter(([id, q]) => validIds.includes(id) && validQuarters.includes(q))) };
 }
-export function policyReadiness() { return { approved: false, verdict: '추가 근거 확보 전 정책 판정 보류', gaps: [...EVIDENCE_GAPS] }; }
-export function markdownReport(note, data) {
-  const lines = ['# 성동구 상권 모니터링 · 정책 검토 메모', '', `작성 제목: ${note.title || '제목 없는 검토'}`, `검토 목적: ${note.purpose}`, `연구 기준: ${data.meta.researchAsOf}`, `종합자료 공통 최신월: ${data.meta.observationMonth} (선택 지역의 관측월은 아래에 별도 표시)`, '', '## 판정 범위', policyReadiness().verdict, '연구 근거 검토용 기록. 지정·지원 승인 및 개인 적격성 판정과 별개.', '', '## 선택한 지역'];
-  for (const id of note.selected) { const g = data.grids.find(g => g.id === id); const month = data.meta.months.includes(note.selectedMonths?.[id]) ? note.selectedMonths[id] : data.meta.observationMonth; const r = recordAt(data, id, month); if (g) lines.push(`- ${id} · ${g.dong} · ${STAGES[r?.stage || 'P0'].name} · 관측 ${month}`); }
-  if (!note.selected.length) lines.push('- 선택 없음');
-  lines.push('', '## 사용자가 검토 표시한 항목');
+export function policyReadiness() { return { approved: false, verdict: '추가 근거 확보 전까지 정책 판단 보류', gaps: [...EVIDENCE_GAPS] }; }
+// describe(id, quarter): 등록 지역의 표시 문구(예: '성수1가1동 · 2026년 1분기 종합 활성')
+export function markdownReport(note, meta, describe = id => id) {
+  const lines = ['# 성동구 상권 모니터링 검토서', '', `제목: ${note.title || '(제목 없음)'}`, `검토 목적: ${note.purpose}`, `자료 기준: ${meta.asOf}`, '', '## 판단 범위', policyReadiness().verdict, '이 검토서는 연구 근거를 정리한 기록이며, 구역 지정·지원 승인이나 개인별 자격 판정을 대신하지 않습니다.', '', '## 등록 지역'];
+  for (const id of note.selected) lines.push(`- ${describe(id, note.selectedQuarters?.[id])}`);
+  if (!note.selected.length) lines.push('- 없음');
+  lines.push('', '## 근거 확인 기록');
   for (const c of CHECKS) lines.push(`- [${note.checked.includes(c.id) ? 'x' : ' '}] ${c.title}`);
-  lines.push('※ 체크 표시: 근거 열람 기록. 정책 요건 충족·사실 확인 완료의 인증과 별개.', '', '## 검토 메모', note.note || '(없음)', '', '## 미확보 근거', ...EVIDENCE_GAPS.map(g => `- ${g}`), '', '## 공식 출처', ...SOURCES.slice(0, 3).map(s => `- ${s.label}: ${s.url}`), '', '검토 메모의 사용자 브라우저 내부 저장. 공유 서버 전송 미제공.');
+  lines.push('※ 체크는 담당자가 근거를 확인했다는 기록이며, 사실 확인이나 정책 요건 충족을 인증하지 않습니다.', '', '## 검토 메모', note.note || '(없음)', '', '## 확보하지 못한 근거', ...EVIDENCE_GAPS.map(g => `- ${g}`), '', '## 공식 출처', ...SOURCES.slice(0, 3).map(s => `- ${s.label}: ${s.url}`), '', '이 검토서는 작성자의 브라우저에만 저장되었으며 서버로 전송되지 않았습니다.');
   return lines.join('\n');
 }
