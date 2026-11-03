@@ -1,10 +1,11 @@
 import { LAYERS, layerColor, layerLegend, priceSummary, scopeGrids, formatValue, layerValue, variablesPage as renderVariables } from './research.js';
 import { STAGES, NAV, SOURCES, CHECKS, EVIDENCE_GAPS, escapeHtml as h, recordAt, metricSummary, stabilityFor, pathFor, percent, findParcels, parcelStatus, sanitizeNote, defaultNote, markdownReport } from './core.js';
 import { icon } from './icons.js';
+import { gradesPage, buildModel, loadUploads, saveUploads, handleFiles } from './grades.js';
 
 const $ = s => document.querySelector(s);
 const STORE = 'seongsu-observatory-note-v1';
-const state = { data: null, parcels: [], scope: 'seongdong', layer: 'stage', research: null, observations: {}, modelValues: {}, dataErrors: {}, requests: new Set(), model: 'D1', modelPeriod: '', modelUnit: '', variableSearch: '', modelSearch: '', gridLimit: 36, page: 'overview', month: '2026-03', dong: 'all', filter: 'all', mode: 'stage', grid: '', search: '', parcelQuery: '', street: 'all', parcelLimit: 12, note: defaultNote(), viewBox: null, menu: false };
+const state = { data: null, parcels: [], scope: 'seongdong', layer: 'stage', research: null, observations: {}, modelValues: {}, dataErrors: {}, requests: new Set(), model: 'D1', modelPeriod: '', modelUnit: '', variableSearch: '', modelSearch: '', gridLimit: 36, grades: null, gradeBase: null, gUploads: loadUploads(), gLayer: 'COMP', gQuarter: '', gDong: '', gIssued: null, page: 'overview', month: '2026-03', dong: 'all', filter: 'all', mode: 'stage', grid: '', search: '', parcelQuery: '', street: 'all', parcelLimit: 12, note: defaultNote(), viewBox: null, menu: false };
 let toastTimer, storageOK = true, drag = null, suppressClick = false;
 const stageBadge = code => `<span class="stage-badge" style="--badge-color:${STAGES[code]?.color || '#a9b4b5'}"><i></i>${h(STAGES[code]?.short || '유보')}</span>`;
 const sourceLink = id => { const s = SOURCES.find(x => x.id === id); return `<a class="source-link" href="${s.url}" target="_blank" rel="noopener noreferrer">${h(s.label)}${icon('external')}</a>`; };
@@ -101,13 +102,19 @@ function reviewPage() {
 }
 function render() {
   const focus = document.activeElement, id = focus?.id, pos = typeof focus?.selectionStart === 'number' ? focus.selectionStart : null;
-  const pages = { overview, map: mapPage, variables:()=>renderVariables(state,selected()), policy: policyPage, evidence: evidencePage, review: reviewPage };
+  const pages = { overview, grades: () => gradesPage(state, state.data), map: mapPage, variables:()=>renderVariables(state,selected()), policy: policyPage, evidence: evidencePage, review: reviewPage };
   $('#app').innerHTML = shell(pages[state.page]());
   document.title = `${NAV.find(n=>n[0]===state.page)?.[1]} · 성동구 상권 모니터링`;
   if (id && document.getElementById(id)) { const el = document.getElementById(id); el.focus({preventScroll:true}); if (pos != null && el.setSelectionRange) el.setSelectionRange(pos,pos); }
   bindMap();
   if(state.page==='variables') loadVariableData();
+  if(state.page==='grades'&&!state.gradeBase) loadGrades();
 }
+async function loadGrades() {
+  if(state.requests.has('grades'))return;state.requests.add('grades');
+  try{const r=await fetch('/data/grades/base.json');if(!r.ok)throw Error('grades');state.gradeBase=await r.json();try{const i=await fetch('/data/grades/issued_2026Q2.json');if(i.ok)state.gIssued=await i.json();}catch{}refreshGrades();}catch{toast('등급 자료를 불러오지 못함');}finally{state.requests.delete('grades');}
+}
+function refreshGrades() { state.grades=buildModel(state.gradeBase,state.gUploads,state.data);if(state.page==='grades')render(); }
 function addGrid() { state.note.selectedMonths[state.grid] = state.month; if (!state.note.selected.includes(state.grid)) { if(state.note.selected.length>=12){toast('등록 가능 지역: 최대 12개');return;}state.note.selected.push(state.grid);persist();toast('검토 기록 등록 완료'); } else {persist();toast('선택 관측월 반영 완료');}render(); }
 function selectGrid(id) { if(!state.data.grids.some(g=>g.id===id))return;state.grid=id;syncMapUrl();render(); }
 function download(content, name, type) { const a=document.createElement('a'); const url=URL.createObjectURL(new Blob([content],{type}));a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000); }
@@ -124,6 +131,8 @@ function bindMap() {
 document.addEventListener('click',async e=>{
   if(!state.data)return;
   const jump=e.target.closest('[data-jump]');if(jump){document.getElementById(jump.dataset.jump)?.scrollIntoView({block:'start'});return;}
+  const gd=e.target.closest('[data-gdong]');if(gd){state.gDong=gd.dataset.gdong;render();return;}
+  const ga=e.target.closest('[data-gact]');if(ga){if(ga.dataset.gact==='export')download(JSON.stringify(state.gUploads),'seongdong-grade-uploads.json','application/json');if(ga.dataset.gact==='reset'&&confirm('이 브라우저의 업로드 자료를 지울까요?')){state.gUploads={dong:{},grid:{},log:[]};saveUploads(state.gUploads);refreshGrades();}return;}
   const g=e.target.closest('[data-grid]');if(g&&!suppressClick){selectGrid(g.dataset.grid);return;}
   const mode=e.target.closest('[data-mode]');if(mode){state.mode=mode.dataset.mode;state.filter='all';render();return;}
   const filt=e.target.closest('[data-filter]');if(filt){state.filter=filt.dataset.filter;render();return;}
@@ -147,6 +156,10 @@ document.addEventListener('click',async e=>{
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&state.menu){state.menu=false;render();$('.mobile-menu')?.focus();return;}const g=e.target.closest?.('[data-grid]');if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault();selectGrid(g.dataset.grid);}});
 document.addEventListener('change',e=>{
   if(!state.data)return; const t=e.target;
+  if(t.id==='g-quarter'){state.gQuarter=t.value;render();return;}
+  if(t.id==='g-layer'){state.gLayer=t.value;render();return;}
+  if(t.id==='g-files'&&t.files.length){handleFiles([...t.files],state.gUploads,state.gradeBase).then(up=>{state.gUploads=up;if(!saveUploads(up))toast('브라우저 저장 불가 · 내보내기로 보관 필요');else toast('업로드 반영 완료');refreshGrades();});return;}
+  if(t.id==='g-import'&&t.files.length){t.files[0].text().then(x=>{const up=JSON.parse(x);if(!up||typeof up.dong!=='object')throw Error('format');state.gUploads=up;saveUploads(up);toast('업로드 자료 가져오기 완료');refreshGrades();}).catch(()=>toast('가져오기 실패 · 내보낸 JSON 파일 필요'));return;}
   if(t.id==='month'){state.month=t.value;state.filter='all';if(state.page==='map')syncMapUrl();else if(state.page==='variables')history.replaceState(null,'',`#variables?${new URLSearchParams({grid:state.grid,month:state.month,scope:state.scope})}`);render();}
   if(t.id==='scope'){state.scope=t.value;state.dong='all';state.filter='all';state.gridLimit=36;state.viewBox=null;if(!scopeGrids(state.data,state.scope).some(g=>g.id===state.grid))state.grid=scopeGrids(state.data,state.scope)[0].id;syncMapUrl();render();}
   if(t.id==='map-layer'){state.layer=t.value;state.mode='stage';state.filter='all';syncMapUrl();render();}

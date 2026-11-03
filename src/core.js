@@ -7,7 +7,7 @@ export const STAGES = {
   S4: { name: '복합신호 지속 · 검증 필요', color: '#ac6c6b', short: '지속 관측' },
 };
 export const NAV = [
-  ['overview', '개요', 'home'], ['map', '상권 현황 지도', 'map'],
+  ['overview', '개요', 'home'], ['grades', '등급 모니터링', 'shield'], ['map', '상권 현황 지도', 'map'],
   ['variables','지표·변수 조회','chart'], ['policy', '정책 적용 범위', 'layers'], ['evidence', '연구 근거', 'chart'], ['review', '검토 기록', 'file'],
 ];
 export const SOURCES = [
