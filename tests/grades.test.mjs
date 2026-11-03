@@ -38,3 +38,8 @@ test('in-browser macro AUC matches scikit-learn and scoring handles pending quar
   const r=scoreIssued(iss.sets.COMP.rows,id=>va[id]??null);assert.equal(r.n,ref.scoreCheck.n);assert.ok(Math.abs(r.auc-ref.scoreCheck.auc)<1e-9,`${r.auc} vs ${ref.scoreCheck.auc}`);
   assert.equal(macroAuc(['위험','활성','쇠퇴'],[[0,0,1],[0,1,0],[1,0,0]]),1);
   const pend=scoreIssued(iss.sets.GRIDC.rows,()=>null);assert.equal(pend.n,0);assert.equal(pend.auc,undefined);assert.equal(pend.issued,63);});
+test('each issued forecast set carries the hash of its own issued file',async()=>{
+  const iss=JSON.parse(await readFile(new URL('../data/grades/issued_2026Q2.json',import.meta.url),'utf8'));
+  const h=Object.fromEntries(Object.entries(iss.sets).map(([k,v])=>[k,v.sha256]));
+  assert.equal(new Set(Object.values(h)).size,4);
+  assert.deepEqual(Object.fromEntries(Object.entries(h).map(([k,v])=>[k,v.slice(0,12)])),{COMP:'d60ffccb1b9e',C1:'e6ecf66aabef',GRID:'204c2210d675',GRIDC:'3e4989c7e5d7'});});
