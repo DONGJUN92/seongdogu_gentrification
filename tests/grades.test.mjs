@@ -65,8 +65,12 @@ test('issued grid forecasts are scored with the original definitions, not the bo
   const gs=buildModel(base,null,data),q='2026Q1',ex=[...gs.excluded].filter(id=>gs.gridOrig[q]?.[id]);assert.ok(ex.length>0);
   for(const id of ex){assert.equal(observedGetter(gs,'GRID',q)(id),gs.gridOrig[q][id]);assert.equal(gs.grid[q]?.[id],undefined);}
   for(const [id,v] of Object.entries(ref.grid2026Q1))assert.equal(observedGetter(gs,'GRID',q)(id),v,id);});
-test('web mention map equals the latest four quarters of its history and keeps the automatic rules note',async()=>{
+test('web mention map is the quarter-stratified sum of the latest four quarters of its history',async()=>{
   const H=JSON.parse(await readFile(new URL('../data/grades/web_mentions_history.json',import.meta.url),'utf8')),M=JSON.parse(await readFile(new URL('../data/grades/web_mentions.json',import.meta.url),'utf8'));
-  const qs=Object.keys(H.quarters).sort().slice(-4),acc={};for(const q of qs)for(const [g,[n,b]] of Object.entries(H.quarters[q])){const a=(acc[g]||=[0,0]);a[0]+=n;a[1]=Math.max(a[1],b);}
-  assert.deepEqual(M.meta.period,[qs[0],qs.at(-1)]);assert.deepEqual(M.grids,acc);assert.match(M.meta.note,/자동 규칙/);
+  const K=Math.min(...Object.values(H.totals)),qs=Object.keys(H.quarters).sort().slice(-4),acc={};assert.equal(M.meta.stratumSize,K);
+  for(const q of qs)for(const [g,[n,b]] of Object.entries(H.quarters[q])){const a=(acc[g]||=[0,0]);a[0]+=n*K/H.totals[q];a[1]=Math.max(a[1],b);}
+  assert.deepEqual(M.meta.period,[qs[0],qs.at(-1)]);assert.deepEqual(Object.keys(M.grids).sort(),Object.keys(acc).sort());
+  for(const [g,[v,b]] of Object.entries(acc)){assert.ok(Math.abs(M.grids[g][0]-v)<0.006,g);assert.equal(M.grids[g][1],b,g);}
+  for(const q of Object.keys(H.quarters))assert.equal(Object.values(H.quarters[q]).reduce((s,[n])=>s+n,0),H.totals[q],q);
+  assert.match(M.meta.note,/층화 추출/);assert.equal(M.meta.breaks.length,3);
   const ids=new Set(data.grids.map(g=>g.id));for(const g of Object.keys(M.grids))assert.ok(ids.has(g),g);});

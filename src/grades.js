@@ -14,7 +14,7 @@ export const RULES = {
   GRID: '격자 안 카드 식음료 매출 증가율과 소속 행정동의 임대료 상승률을 임대료·매출 항목과 같은 기준으로 비교합니다. 분기 카드 결제가 250건 미만이거나, 3개월 중 빠진 달이 있거나, 전년 같은 분기 자료가 없으면 자료 부족으로 표시합니다. 성동구 면적이 50% 이하인 격자 40곳은 등급을 내지 않고, 카드 자료는 중심이 성동구 안에 있는 50m 칸만 집계합니다(경계 보정).',
   GRIDC: '격자별 임대료·카드매출, 개·폐업(외식업 인허가, 최근 1년), 영업기간(외식업 인허가, 성동구 평균 대비), 업종 변화(전 업종 카드: 외식 매출 비중 증가와 생활밀착 매출 감소) 중 위험이 3개 이상이면 위험, 쇠퇴가 2개 이상이면 쇠퇴로 봅니다. 4개 항목이 모두 있는 격자(분기당 약 60~70곳)만 표시합니다. 성동구 면적이 50% 이하인 격자 40곳은 등급을 내지 않고, 카드 자료는 중심이 성동구 안에 있는 50m 칸만 집계합니다(경계 보정).',
   C6: '네이버 검색어 트렌드(법정동·도로명과 맛집·카페·쇼핑·팝업·나들이를 합한 검색어)의 전년 같은 분기 대비 변화가 0보다 크고 같은 분기 성동구 중앙값보다 크면 위험(관심 급증), 0보다 작고 중앙값보다 작으면 쇠퇴, 그 밖에는 활성으로 봅니다. 종합 등급에 넣지 않는 참고 항목입니다.',
-  WEB: '네이버 블로그 게시글 가운데 성동구 외식업소 상호와 연결된 글을 격자별로 센 값입니다(최근 4개 분기). 사람 검수 없이 자동 규칙만 적용했습니다: 상호가 지명이거나 2글자 이하인 업소, 업소 여러 곳에 연결된 글은 제외합니다. 분기마다 자동으로 수집해 갱신하며, 수집 시점에 따른 편향이 있고 광고성 글을 걸러내지 않았습니다.',
+  WEB: '네이버 블로그 게시글 가운데 성동구 외식업소 상호와 연결된 글을 격자별로 센 값입니다(최근 4개 분기). 사람 검수 없이 자동 규칙(지명이거나 2글자 이하인 상호, 업소 여러 곳에 연결된 글 제외)만 적용했습니다. 최근 글이 많이 잡히는 수집 시점 편향은 분기 층화 추출로 맞췄습니다(분기마다 같은 건수를 뽑았을 때의 기대 건수). 매월 자동으로 점검해 직전 분기를 수집하며, 광고성 글은 걸러내지 않았습니다.',
 };
 export const VALIDATION = {
   COMP: '다음 분기 등급 적중률 55.8%(무작위 배정 시 40.0%)로, 우연보다 높은 것이 통계적으로 확인되었습니다(2023년 4분기~2026년 1분기, 163건).',
@@ -33,6 +33,12 @@ export const GUIDE = [
   ['쇠퇴', '상권 활성화 검토', '골목상권 활성화, 공실 대응, 소상공인 경영지원 사업의 대상 여부를 검토합니다.'],
   ['활성', '정기 확인', '분기별 갱신 때 등급 유지 여부를 확인합니다.'],
   ['다음 분기 위험 예측', '사전 대비', '적중률 56% 수준의 참고 정보입니다. 예측만으로 대상을 정하지 않고 실제 등급을 확인한 뒤 판단합니다.'],
+];
+export const CRITERIA_BASIS = [
+  ['자본 재투자', '임대료가 영업 수익보다 빠르게 오름', '임대료·매출'],
+  ['경관 변화', '점포가 빠르게 바뀜', '개·폐업'],
+  ['사회적 상향', '주민 대상 업종이 방문객 대상 업종으로 바뀜', '업종 변화'],
+  ['내몰림', '오래 영업한 점포가 떠남', '영업기간'],
 ];
 export const GUIDE_COMPONENT = [
   ['임대료·매출 위험', '임대료 상승이 매출 증가를 앞지름', '상생협약 체결 권고, 임대료 안정 협의, 안심상가 입주 수요 파악'],
@@ -312,8 +318,11 @@ export function saveUploads(up) { try { localStorage.setItem(UPLOAD_KEY, JSON.st
 export const qLabel = q => (q ? `${q.slice(0, 4)}년 ${q.slice(5)}분기` : '');
 const qShort = q => `${q.slice(2, 4)}.${q.slice(5)}분기`;
 const LAYER_NAMES = { COMP: '행정동 종합', C1: '행정동 임대료·매출', C2: '행정동 개·폐업', C3: '행정동 영업기간', C4: '행정동 업종 변화', GRIDC: '250m 격자 종합', GRID: '250m 격자 임대료·카드매출', C6: '행정동 온라인 관심도(참고)', WEB: '250m 격자 온라인 언급(참고)' };
-const WEB_CLASS = [[1, 4, '#d7ece9'], [5, 12, '#9bcfc7'], [13, 37, '#4ea597'], [38, Infinity, '#16766c']];
-const webClass = n => WEB_CLASS.findIndex(([a, b]) => n >= a && n <= b);
+// 온라인 언급: 분기 층화 추출 기대 건수, 구간 경계는 자료 파일의 사분위수(meta.breaks)
+const WEB_COLORS = ['#d7ece9', '#9bcfc7', '#4ea597', '#16766c'];
+const webBreaks = gs => gs.web?.meta?.breaks || [2, 5, 13];
+const webClass = (n, br) => (n <= br[0] ? 0 : n <= br[1] ? 1 : n <= br[2] ? 2 : 3);
+const fmtN = v => (Math.round(v * 10) / 10).toLocaleString('ko-KR');
 const EXCLUDED_CELL = (g, dong) => `<path d="${pathFor(g.geometry)}" fill="#8a8a85" fill-opacity=".18" stroke="#8a8a85" stroke-width=".5"><title>${h(dong)} · 격자 ${h(g.id)} · 성동구 면적 50% 이하(등급 미산출)</title></path>`;
 const ISSUED_NAMES = { COMP: '행정동 종합 등급', C1: '행정동 임대료·매출 등급', GRID: '250m 격자 임대료·카드매출 등급', GRIDC: '250m 격자 종합 등급' };
 const KIND = { rent: '서울신용보증재단 임대료', sales: '서울신용보증재단 매출', stores: '서울신용보증재단 점포·개폐업', change: '서울신용보증재단 영업기간', card: '카드(식음료, 격자) · 반영하지 않음(전 업종 카드로 계산)', allind: '카드(전 업종, 격자)', license: '외식업 인허가' };
@@ -345,7 +354,7 @@ export function dongMap(gs, data, layer, q, focus, cls = 'grade-map') {   // lay
   let a = Infinity, b = Infinity, c = -Infinity, e = -Infinity; for (let i = 0; i < xs.length; i += 2) { a = Math.min(a, xs[i]); c = Math.max(c, xs[i]); b = Math.min(b, xs[i + 1]); e = Math.max(e, xs[i + 1]); }
   const box = [a - 16, b - 16, c - a + 32, e - b + 32];
   const GN = ['임대료·카드매출', '개·폐업', '영업기간', '업종 변화'];
-  const cells = layer === 'WEB' ? data.grids.map(g => { const w = gs.web?.grids?.[g.id], k = w ? webClass(w[0]) : -1; return `<path d="${pathFor(g.geometry)}" ${k >= 0 ? `fill="${WEB_CLASS[k][2]}" fill-opacity=".8" stroke="#ffffff" stroke-width=".6"` : 'fill="none" stroke="#8a8a85" stroke-width=".5" stroke-dasharray="2 2"'}><title>${h(g.dong)} · 격자 ${h(g.id)} · ${w ? `최근 4개 분기 게시글 ${w[0].toLocaleString('ko-KR')}건 · 언급 업소 ${w[1]}곳` : '연결된 게시글 없음'}</title></path>`; }).join('')
+  const cells = layer === 'WEB' ? data.grids.map(g => { const w = gs.web?.grids?.[g.id], k = w ? webClass(w[0], webBreaks(gs)) : -1; return `<path d="${pathFor(g.geometry)}" ${k >= 0 ? `fill="${WEB_COLORS[k]}" fill-opacity=".8" stroke="#ffffff" stroke-width=".6"` : 'fill="none" stroke="#8a8a85" stroke-width=".5" stroke-dasharray="2 2"'}><title>${h(g.dong)} · 격자 ${h(g.id)} · ${w ? `최근 4개 분기 층화 기준 게시글 ${fmtN(w[0])}건(분기당 ${gs.web.meta.stratumSize ?? '–'}건 추출 기준) · 언급 업소 ${w[1]}곳` : '연결된 게시글 없음'}</title></path>`; }).join('')
     : layer === 'GRID' ? data.grids.map(g => { if (gs.excluded?.has(g.id)) return EXCLUDED_CELL(g, g.dong); const gr = gs.grid[q]?.[g.id]; return `<path d="${pathFor(g.geometry)}" ${gr ? `fill="${GRADE[gr].color}" fill-opacity=".72" stroke="#ffffff" stroke-width=".6"` : 'fill="none" stroke="#8a8a85" stroke-width=".5" stroke-dasharray="2 2"'}><title>${h(g.dong)} · 격자 ${h(g.id)} · ${h(gr || '자료 부족')}</title></path>`; }).join('')
     : layer === 'GRIDC' ? data.grids.map(g => { if (gs.excluded?.has(g.id)) return EXCLUDED_CELL(g, g.dong); const x = gs.gridC[q]?.[g.id]; return `<path d="${pathFor(g.geometry)}" ${x ? `fill="${GRADE[x.GC].color}" fill-opacity=".72" stroke="#ffffff" stroke-width=".6"` : 'fill="none" stroke="#8a8a85" stroke-width=".5" stroke-dasharray="2 2"'}><title>${h(g.dong)} · 격자 ${h(g.id)} · ${h(x ? `종합 ${x.GC}(위험 항목 ${x.R}개) · ` + x.parts.map((p, i) => `${GN[i]} ${p}`).join(' · ') : '자료 부족')}</title></path>`; }).join('') : '';
   if (layer === 'GRIDC' || layer === 'WEB') layer = 'GRID';
@@ -364,7 +373,8 @@ export function gradesPage(st, data) {
   const isGrid = ['GRID', 'GRIDC', 'WEB'].includes(layer), key = isGrid ? null : layer, counts = Object.fromEntries(CL.map(c => [c, 0])); let none = 0;
   const gval = id => layer === 'GRIDC' ? gs.gridC[q]?.[id]?.GC : gs.grid[q]?.[id];
   if (key) for (const d of data.dongs) cur[d.code]?.[key] ? counts[cur[d.code][key]]++ : none++; else if (layer !== 'WEB') for (const g of data.grids) gval(g.id) ? counts[gval(g.id)]++ : none++;
-  const wp = gs.web?.meta?.period || [], webCounts = WEB_CLASS.map((_, k) => data.grids.filter(g => gs.web?.grids?.[g.id] && webClass(gs.web.grids[g.id][0]) === k).length);
+  const wp = gs.web?.meta?.period || [], br = webBreaks(gs), webCounts = WEB_COLORS.map((_, k) => data.grids.filter(g => gs.web?.grids?.[g.id] && webClass(gs.web.grids[g.id][0], br) === k).length);
+  const webLabels = [`${fmtN(br[0])}건 이하`, `${fmtN(br[0])}~${fmtN(br[1])}건`, `${fmtN(br[1])}~${fmtN(br[2])}건`, `${fmtN(br[2])}건 초과`];
   const mapTitle = layer === 'WEB' ? `최근 4개 분기(${qLabel(wp[0])}~${qLabel(wp[1])}) · ${LAYER_NAMES.WEB}` : `${qLabel(q)} · ${LAYER_NAMES[layer]} 등급`;
   const f = gs.forecast, fd = st.gDong && data.dongs.find(d => d.code === st.gDong), fx = fd && cur[fd.code];
   const alerts = data.dongs.map(d => ({ d, n: riskStreak(gs, d.code, q) })).filter(a => a.n > 0).sort((a, b) => b.n - a.n);
@@ -373,7 +383,7 @@ export function gradesPage(st, data) {
   return `<div class="page-title"><div><p class="eyebrow">젠트리피케이션 대응 상권 모니터링</p><h1>등급 모니터링</h1><p class="subtitle">행정동별 활성·쇠퇴·위험 등급과 250m 격자 등급을 분기별로 확인하고, 다음 분기 예측과 분기 자료 등록을 처리합니다.</p></div></div>
   <div class="map-toolbar"><div class="control"><label for="g-quarter">기준 분기</label><select id="g-quarter">${gs.quarters.slice().reverse().map(x => `<option value="${x}" ${x === q ? 'selected' : ''}>${qLabel(x)}${upQs.includes(x) ? ' (등록 자료)' : ''}</option>`).join('')}</select></div>
   <div class="control"><label for="g-layer">표시 등급</label><select id="g-layer">${Object.entries(LAYER_NAMES).map(([k, v]) => `<option value="${k}" ${k === layer ? 'selected' : ''}>${h(v)}</option>`).join('')}</select></div>
-  <div class="grade-counts">${layer === 'WEB' ? WEB_CLASS.map(([a, b, c], k) => `<span><span class="grade-badge" style="--g:${c};--gi:${k > 1 ? '#ffffff' : '#0b0b0b'}">게시글 ${a}${b === Infinity ? '건 이상' : `~${b}건`}</span><b>${webCounts[k]}</b></span>`).join('') : `${CL.slice().reverse().map(c => `<span>${badge(c)}<b>${counts[c]}</b></span>`).join('')}<span>${badge(null)}<b>${none}</b></span>`}</div></div>
+  <div class="grade-counts">${layer === 'WEB' ? WEB_COLORS.map((c, k) => `<span><span class="grade-badge" style="--g:${c};--gi:${k > 1 ? '#ffffff' : '#0b0b0b'}">${webLabels[k]}</span><b>${webCounts[k]}</b></span>`).join('') : `${CL.slice().reverse().map(c => `<span>${badge(c)}<b>${counts[c]}</b></span>`).join('')}<span>${badge(null)}<b>${none}</b></span>`}</div></div>
   <div class="grade-grid"><section class="panel grade-map-panel"><h2>${h(mapTitle)}</h2>${dongMap(gs, data, layer, q, st.gDong)}<p class="small-copy"><b>산출 기준</b> ${h(RULES[layer])}</p><p class="small-copy"><b>검증 결과</b> ${h(VALIDATION[layer])}</p><p class="small-copy">이 등급은 행정동 평균값 등을 이용한 참고 지표로, 실제 임대료 부담이나 내몰림 여부를 판정한 것이 아닙니다. 배경지도 © OpenStreetMap contributors</p></section>
   <aside class="grade-side">
     <section class="panel"><h2>${fd ? h(fd.name) : '행정동 선택'}</h2>${fd ? `<table class="data-table"><tbody>${Object.entries(COMPONENTS).map(([k, v]) => `<tr><td>${h(v)}</td><td>${badge(fx?.[k])}</td></tr>`).join('')}<tr><td>위험 항목 수</td><td><b>${fx?.R ?? '–'} / 4</b></td></tr><tr><td>종합 위험 연속</td><td><b>${riskStreak(gs, fd.code, q)}분기</b></td></tr>${f?.grades[fd.code] && f.origin === q ? `<tr><td>${qLabel(f.target)} 예측</td><td>${badge(f.grades[fd.code].grade)}</td></tr>` : ''}</tbody></table><button class="button small ${saved ? 'ghost' : 'primary'} wide" data-action="save-unit" data-unit="D:${fd.code}" data-quarter="${q}">${icon(saved ? 'check' : 'plus')}${saved ? '검토 기록에 등록됨' : '검토 기록에 추가'}</button>` : '<p class="small-copy">지도에서 행정동을 선택하면 항목별 등급, 위험 항목 수, 다음 분기 예측을 보여 줍니다.</p>'}</section>
@@ -381,6 +391,9 @@ export function gradesPage(st, data) {
     ${f ? `<section class="panel"><h2>${h(qLabel(f.target))} 종합 등급 예측</h2><p class="small-copy">${h(qLabel(f.origin))}까지의 자료로 예측했습니다(과거 사례 ${f.pairs}건 학습). 새 분기 자료를 등록하면 다시 계산합니다.</p><div class="forecast-list">${data.dongs.map(d => f.grades[d.code] ? `<span>${h(d.name)} ${badge(f.grades[d.code].grade)}</span>` : '').join('')}</div></section>` : ''}
   </aside></div>
   <section class="panel"><h2>등급 변화 추이 · ${h(isGrid ? '행정동 종합' : LAYER_NAMES[layer])} (최근 13개 분기, ● 성수동 4개 동)</h2>${flowMatrix(gs, data, isGrid ? 'COMP' : layer)}</section>
+  <section class="panel"><h2>등급 기준의 근거</h2><p class="small-copy">젠트리피케이션은 여러 현상이 함께 나타나는 과정입니다. 선행연구(Davidson·Lees 2005)가 정리한 네 가지 정의 요소를 상권 자료로 옮겨 4개 항목을 만들었습니다.</p>
+  <table class="data-table"><thead><tr><th>정의 요소</th><th>상권에서 나타나는 모습</th><th>등급 항목</th></tr></thead><tbody>${CRITERIA_BASIS.map(r => `<tr><td><b>${h(r[0])}</b></td><td>${h(r[1])}</td><td>${h(r[2])}</td></tr>`).join('')}</tbody></table>
+  <p class="small-copy"><b>기준의 출처</b> 항목 구성과 '여러 요소가 함께 나타날 때 위험'이라는 원리는 정의에서 왔습니다. 위험 3개 이상은 결과를 보기 전에 정한 비교 시험에서 골랐습니다(위험 동 비중 52.9% → 14.7%). 쇠퇴 2개 이상과 임대료·매출의 1% 기준은 관례로 둔 값으로, 앞으로 검증할 과제입니다.</p></section>
   <section class="panel"><h2>활용 지침</h2><table class="data-table"><thead><tr><th>등급 상황</th><th>조치 단계</th><th>조치 내용</th></tr></thead><tbody>${GUIDE.map(r => `<tr><td><b>${h(r[0])}</b></td><td>${h(r[1])}</td><td>${h(r[2])}</td></tr>`).join('')}</tbody></table>
   <table class="data-table"><thead><tr><th>위험 항목</th><th>의미</th><th>검토 수단</th></tr></thead><tbody>${GUIDE_COMPONENT.map(r => `<tr><td><b>${h(r[0])}</b></td><td>${h(r[1])}</td><td>${h(r[2])}</td></tr>`).join('')}</tbody></table>
   <p class="small-copy">등급은 행정동 평균값 등을 이용한 참고 지표입니다. 개별 임대인·임차인 제재, 지원사업 적격 판정, 구역 지정의 단독 근거로 사용할 수 없습니다.</p></section>

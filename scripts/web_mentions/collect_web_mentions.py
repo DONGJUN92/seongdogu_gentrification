@@ -4,7 +4,7 @@
 2. 자동 규칙: 상호(공백 제거)가 지명이거나 2글자 이하이면 제외한다.
 3. 업소마다 네이버 블로그 검색 API를 "상호 + 법정동" 최신순으로 조회해, 대상 분기에 쓰였고 제목·요약에 상호가 들어간 글을 모은다.
 4. 업소 2곳 이상에 연결된 글은 제외한다. 남은 글을 업소 좌표의 250m 격자로 센다.
-5. data/grades/web_mentions_history.json에 분기를 추가하고, 최근 4개 분기로 data/grades/web_mentions.json을 다시 만든다.
+5. data/grades/web_mentions_history.json에 분기를 추가하고, 최근 4개 분기를 분기 층화 추출 기대값으로 합쳐 data/grades/web_mentions.json을 다시 만든다.
 
 환경변수: SEOUL_OPENAPI_KEY, NAVER_CLIENT_ID, NAVER_CLIENT_SECRET (값은 출력하지 않는다)
 사용: python scripts/web_mentions/collect_web_mentions.py [--quarter 2026Q3] [--limit 50] [--dry-run]
@@ -101,14 +101,22 @@ def posts_for(b, q, headers):
         if (oldest and oldest < s) or len(items) < 100: break
     return found
 
-def rebuild_latest(H):
-    qs = sorted(H['quarters'])[-4:]; acc = {}
+def latest_map(H, meta_base):
+    """최근 4개 분기 지도. 수집 시점 편향은 분기 층화 추출로 맞춘다: 분기마다 K건(이력 중 가장 적은 분기 건수)을
+    비복원 추출했을 때의 기대 건수 = 격자 건수 × K / 분기 전체 건수."""
+    T = H['totals']; K = min(T.values()); qs = sorted(H['quarters'])[-4:]; acc = {}
     for q in qs:
         for g, (n, b) in H['quarters'][q].items():
-            a = acc.setdefault(g, [0, 0]); a[0] += n; a[1] = max(a[1], b)
+            a = acc.setdefault(g, [0.0, 0]); a[0] += n * K / T[q]; a[1] = max(a[1], b)
+    acc = {g: [round(v[0], 2), v[1]] for g, v in sorted(acc.items())}
+    vals = sorted(v[0] for v in acc.values()); qt = lambda p: vals[min(len(vals) - 1, int(p * len(vals)))]
+    meta = {**meta_base, 'period': [qs[0], qs[-1]], 'grids': len(acc), 'stratumSize': K, 'docs_total': round(sum(v[0] for v in acc.values()), 1),
+            'breaks': [round(qt(.25), 2), round(qt(.5), 2), round(qt(.75), 2)], 'updated': dt.date.today().isoformat()}
+    return {'meta': meta, 'grids': acc}
+def rebuild_latest(H):
     old = json.load(open(LATEST, encoding='utf-8'))['meta'] if os.path.exists(LATEST) else {}
-    meta = {**old, 'period': [qs[0], qs[-1]], 'grids': len(acc), 'docs_total': sum(v[0] for v in acc.values()), 'updated': dt.date.today().isoformat()}
-    json.dump({'meta': meta, 'grids': acc}, open(LATEST, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
+    keep = {k: v for k, v in old.items() if k in ('source', 'note', 'businesses_definition', 'history')}
+    json.dump(latest_map(H, keep), open(LATEST, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--quarter'); ap.add_argument('--limit', type=int); ap.add_argument('--dry-run', action='store_true')
@@ -137,6 +145,7 @@ def main():
     if a.dry_run: return
     H = json.load(open(HIST, encoding='utf-8'))
     H['quarters'][q] = qcounts; H['quarters'] = dict(sorted(H['quarters'].items()))
+    H.setdefault('totals', {})[q] = sum(v[0] for v in qcounts.values()); H['totals'] = dict(sorted(H['totals'].items()))
     H.setdefault('sources', {})[q] = f'분기 자동 수집 {dt.date.today().isoformat()}(네이버 블로그 검색 API, 상호 + 법정동, 대상 업소 {len(biz)}곳)'
     json.dump(H, open(HIST, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
     rebuild_latest(H)
