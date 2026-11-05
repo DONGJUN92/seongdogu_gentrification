@@ -1,31 +1,31 @@
 {
- "title": "성동구 상권 모니터링 공개 자료 목록",
- "asOf": "2026-11-03",
- "note": "공개 화면이 불러오는 자료 파일과 파일 확인값(SHA-256)입니다. 원자료(월별 격자 관측값, 모형 입력값)는 공개하지 않습니다.",
- "files": {
-  "data/observatory.json": {
-   "bytes": 91363,
-   "sha256": "6799872ae224d147fbf6a3ba70372e6237bf07555475e2cc1d6a01d53b1bb3b5"
-  },
-  "data/parcels.json": {
-   "bytes": 73056,
-   "sha256": "07d3e9692100549030f285c57684805d78227d8284dbabb502fb9f0c5ddadaa3"
-  },
-  "data/grades/base.json": {
-   "bytes": 1900395,
-   "sha256": "ed5e7ee40b318b140604e20a8963d723fa3eafef411e4115cd8f1f8f646ff5ab"
-  },
-  "data/grades/card_upload_template.csv": {
-   "bytes": 79,
-   "sha256": "af933adc10b8952370fea4eb344c8b0b69802058174e2d67aa3d347d986218e1"
-  },
-  "data/grades/issued_2026Q2.json": {
-   "bytes": 18199,
-   "sha256": "c565450b8d0689730efcd63750edc0aaab11294105ed43bdf8bf4f835f5484d6"
-  },
-  "assets/seongdong-map.webp": {
-   "bytes": 373246,
-   "sha256": "130f7cf995d82c584434486fc8304784e6b497e63c9ff1b7c97ea2280d6d3b65"
+  "title": "성동구 상권 모니터링 공개 자료 목록",
+  "asOf": "2026-11-03",
+  "note": "공개 화면이 불러오는 자료 파일과 파일 확인값(SHA-256)입니다. 원자료(월별 격자 관측값, 모형 입력값)는 공개하지 않습니다.",
+  "files": {
+    "data/observatory.json": {
+      "bytes": 91363,
+      "sha256": "6799872ae224d147fbf6a3ba70372e6237bf07555475e2cc1d6a01d53b1bb3b5"
+    },
+    "data/parcels.json": {
+      "bytes": 73056,
+      "sha256": "07d3e9692100549030f285c57684805d78227d8284dbabb502fb9f0c5ddadaa3"
+    },
+    "data/grades/base.json": {
+      "bytes": 2507470,
+      "sha256": "870dfb98c195d90d94eb1aa88ab7e705f5f6302b3e04d319f65588dd881af854"
+    },
+    "data/grades/card_upload_template.csv": {
+      "bytes": 79,
+      "sha256": "af933adc10b8952370fea4eb344c8b0b69802058174e2d67aa3d347d986218e1"
+    },
+    "data/grades/issued_2026Q2.json": {
+      "bytes": 18199,
+      "sha256": "c565450b8d0689730efcd63750edc0aaab11294105ed43bdf8bf4f835f5484d6"
+    },
+    "assets/seongdong-map.webp": {
+      "bytes": 373246,
+      "sha256": "130f7cf995d82c584434486fc8304784e6b497e63c9ff1b7c97ea2280d6d3b65"
+    }
   }
- }
 }
