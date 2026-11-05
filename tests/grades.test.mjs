@@ -65,3 +65,8 @@ test('issued grid forecasts are scored with the original definitions, not the bo
   const gs=buildModel(base,null,data),q='2026Q1',ex=[...gs.excluded].filter(id=>gs.gridOrig[q]?.[id]);assert.ok(ex.length>0);
   for(const id of ex){assert.equal(observedGetter(gs,'GRID',q)(id),gs.gridOrig[q][id]);assert.equal(gs.grid[q]?.[id],undefined);}
   for(const [id,v] of Object.entries(ref.grid2026Q1))assert.equal(observedGetter(gs,'GRID',q)(id),v,id);});
+test('web mention map equals the latest four quarters of its history and keeps the automatic rules note',async()=>{
+  const H=JSON.parse(await readFile(new URL('../data/grades/web_mentions_history.json',import.meta.url),'utf8')),M=JSON.parse(await readFile(new URL('../data/grades/web_mentions.json',import.meta.url),'utf8'));
+  const qs=Object.keys(H.quarters).sort().slice(-4),acc={};for(const q of qs)for(const [g,[n,b]] of Object.entries(H.quarters[q])){const a=(acc[g]||=[0,0]);a[0]+=n;a[1]=Math.max(a[1],b);}
+  assert.deepEqual(M.meta.period,[qs[0],qs.at(-1)]);assert.deepEqual(M.grids,acc);assert.match(M.meta.note,/자동 규칙/);
+  const ids=new Set(data.grids.map(g=>g.id));for(const g of Object.keys(M.grids))assert.ok(ids.has(g),g);});

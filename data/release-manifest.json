@@ -12,8 +12,8 @@
       "sha256": "07d3e9692100549030f285c57684805d78227d8284dbabb502fb9f0c5ddadaa3"
     },
     "data/grades/base.json": {
-      "bytes": 2507470,
-      "sha256": "870dfb98c195d90d94eb1aa88ab7e705f5f6302b3e04d319f65588dd881af854"
+      "bytes": 2506858,
+      "sha256": "a7c0c0798c8e395bfda5595d86b22feac0aab3d83843ce4038a24a1f6b0b486d"
     },
     "data/grades/card_upload_template.csv": {
       "bytes": 79,
@@ -26,6 +26,14 @@
     "assets/seongdong-map.webp": {
       "bytes": 373246,
       "sha256": "130f7cf995d82c584434486fc8304784e6b497e63c9ff1b7c97ea2280d6d3b65"
+    },
+    "data/grades/web_mentions.json": {
+      "sha256": "2b1b8a8af337c6857d607bd101aeb9b50e195c1310d919c2c397ed78d6adf1d7",
+      "bytes": 4372
+    },
+    "data/grades/web_mentions_history.json": {
+      "sha256": "044a16738652af0b2731bbe0452b2030e0bec16363cb3ff547eae46a80546749",
+      "bytes": 54384
     }
   }
 }

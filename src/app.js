@@ -75,7 +75,7 @@ function render() {
 }
 async function loadGrades() {
   if (state.requests.has('grades')) return; state.requests.add('grades');
-  try { const r = await fetch('/data/grades/base.json'); if (!r.ok) throw Error('grades'); state.gradeBase = await r.json(); try { const i = await fetch('/data/grades/issued_2026Q2.json'); if (i.ok) state.gIssued = await i.json(); } catch {} refreshGrades(); } catch { toast('등급 자료를 불러오지 못했습니다.'); } finally { state.requests.delete('grades'); }
+  try { const r = await fetch('/data/grades/base.json'); if (!r.ok) throw Error('grades'); state.gradeBase = await r.json(); try { const i = await fetch('/data/grades/issued_2026Q2.json'); if (i.ok) state.gIssued = await i.json(); } catch {} try { const w = await fetch('/data/grades/web_mentions.json'); if (w.ok) state.gradeBase.webMentions = await w.json(); } catch {} refreshGrades(); } catch { toast('등급 자료를 불러오지 못했습니다.'); } finally { state.requests.delete('grades'); }
 }
 function refreshGrades() { state.grades = buildModel(state.gradeBase, state.gUploads, state.data); render(); }
 function addUnit(unit, quarter) {
