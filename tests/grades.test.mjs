@@ -43,3 +43,25 @@ test('each issued forecast set carries the hash of its own issued file',async()=
   const h=Object.fromEntries(Object.entries(iss.sets).map(([k,v])=>[k,v.sha256]));
   assert.equal(new Set(Object.values(h)).size,4);
   assert.deepEqual(Object.fromEntries(Object.entries(h).map(([k,v])=>[k,v.slice(0,12)])),{COMP:'d60ffccb1b9e',C1:'e6ecf66aabef',GRID:'204c2210d675',GRIDC:'3e4989c7e5d7'});});
+import {mergeAllInd,mergeFood} from '../src/grades.js';
+import {readdirSync} from 'node:fs';
+test('browser boundary-corrected grid grades reproduce protocol 45 for every grid-quarter',()=>{
+  const gd=Object.fromEntries(data.grids.map(x=>[x.id,x.dongCode])),ex=new Set(base.gridExcluded);assert.equal(ex.size,40);
+  const g1=gridGrades(base.gridB,panel,gd,false,ex),qs=[...new Set(Object.keys(ref.gridCompositeB).map(k=>k.split('|')[0]))].sort();
+  const lg=licenseGrades(base.lic,qs),ai=allIndustryGrades(base.allindB),gc=gridComposite(g1,lg,ai,qs.filter(q=>q>='2023Q1'));
+  let n=0,bad=[];for(const [k,v] of Object.entries(ref.gridCompositeB)){const [q,id]=k.split('|'),out=ex.has(id);
+    const got={G1:g1[q]?.[id]??null,G2:!out&&q>='2023Q1'?lg[q]?.[id]?.G2??null:null,G3:!out&&q>='2023Q1'?lg[q]?.[id]?.G3??null:null,G4:out?null:ai[q]?.[id]?.G4??null,GC:gc[q]?.[id]?.GC??null};
+    for(const c of ['G1','G2','G3','G4','GC']){n++;if(got[c]!==v[c])bad.push(`${k} ${c} ${got[c]} vs ${v[c]}`);}}
+  assert.deepEqual(bad.slice(0,10),[]);assert.ok(n>20000);});
+const RAWAI=new URL('../../data/raw/shinhan_all_industry_20261102/',import.meta.url);
+test('all-industry upload rebuilds the whole-cell and boundary-corrected card inputs (local raw files only)',{skip:!existsSync(RAWAI)},()=>{
+  const up={dong:{},grid:{}},q='2026Q1';
+  for(const f of readdirSync(RAWAI).filter(f=>f.endsWith('.csv'))){const rows=parseDelimited(readFileSync(new URL(f,RAWAI),'utf8')).filter(r=>['202601','202602','202603'].includes(r.ym));assert.equal(kindOf(rows),'allind');ingest(rows,'allind',up,base);}
+  const close=(a,b,k)=>assert.ok(Math.abs(a-b)<=1e-6*Math.max(1,Math.abs(b)),`${k} ${a} vs ${b}`);
+  for(const [B,key] of [[false,'allind'],[true,'allindB']]){const got=mergeAllInd({...base,[key]:{}},up,B)[q],want=base[key][q];assert.deepEqual(Object.keys(got).sort(),Object.keys(want).sort());for(const [id,v] of Object.entries(want))v.forEach((x,i)=>close(got[id][i],x,`${key} ${id} ${i}`));}
+  for(const [P,key] of [[up.foodPartsB,'gridB']]){const got=mergeFood({},P)[q],want=base[key][q];assert.deepEqual(Object.keys(got).sort(),Object.keys(want).sort());for(const [id,v] of Object.entries(want)){close(got[id].amt,v.amt,id);close(got[id].cnt,v.cnt,id);assert.equal(got[id].months,v.months,id);}}});
+import {buildModel,observedGetter} from '../src/grades.js';
+test('issued grid forecasts are scored with the original definitions, not the boundary-corrected grades',()=>{
+  const gs=buildModel(base,null,data),q='2026Q1',ex=[...gs.excluded].filter(id=>gs.gridOrig[q]?.[id]);assert.ok(ex.length>0);
+  for(const id of ex){assert.equal(observedGetter(gs,'GRID',q)(id),gs.gridOrig[q][id]);assert.equal(gs.grid[q]?.[id],undefined);}
+  for(const [id,v] of Object.entries(ref.grid2026Q1))assert.equal(observedGetter(gs,'GRID',q)(id),v,id);});
