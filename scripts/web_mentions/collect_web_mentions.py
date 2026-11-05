@@ -16,6 +16,7 @@ from pyproj import Transformer
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 HIST = os.path.join(ROOT, 'data', 'grades', 'web_mentions_history.json')
 LATEST = os.path.join(ROOT, 'data', 'grades', 'web_mentions.json')
+STATUS = os.path.join(ROOT, 'data', 'grades', 'web_mentions_status.json')
 OBS = os.path.join(ROOT, 'data', 'observatory.json')
 SERVICES = ['LOCALDATA_072404_SD', 'LOCALDATA_072405_SD', 'LOCALDATA_072406_SD']
 EXCL_UPTAE = {'편의점', '백화점', '철도역구내', '극장', '관광호텔', '푸드트럭', '출장조리', '이동조리'}   # 격자 종합(프로토콜 42)과 같은 제외 업태
@@ -110,9 +111,13 @@ def rebuild_latest(H):
     json.dump({'meta': meta, 'grids': acc}, open(LATEST, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument('--quarter'); ap.add_argument('--limit', type=int); ap.add_argument('--dry-run', action='store_true'); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument('--quarter'); ap.add_argument('--limit', type=int); ap.add_argument('--dry-run', action='store_true')
+    ap.add_argument('--if-missing', action='store_true', help='이미 수집한 분기면 점검 날짜만 기록하고 끝냄(월별 예약 실행용)'); a = ap.parse_args()
     q = a.quarter or prev_quarter(dt.date.today())
     if not re.fullmatch(r'\d{4}Q[1-4]', q): sys.exit('분기 형식: 2026Q3')
+    if a.if_missing and q in json.load(open(HIST, encoding='utf-8'))['quarters']:
+        json.dump({'lastChecked': dt.date.today().isoformat(), 'latestQuarter': q, 'note': '직전 분기는 이미 수집됨'}, open(STATUS, 'w', encoding='utf-8'), ensure_ascii=False)
+        print(f'{q}: 이미 수집됨, 점검 날짜만 기록'); return
     ids = {g['id'] for g in json.load(open(OBS, encoding='utf-8'))['grids']}
     headers = {'X-Naver-Client-Id': env('NAVER_CLIENT_ID'), 'X-Naver-Client-Secret': env('NAVER_CLIENT_SECRET')}
     biz = frame(localdata(env('SEOUL_OPENAPI_KEY')), q, ids)
@@ -135,6 +140,7 @@ def main():
     H.setdefault('sources', {})[q] = f'분기 자동 수집 {dt.date.today().isoformat()}(네이버 블로그 검색 API, 상호 + 법정동, 대상 업소 {len(biz)}곳)'
     json.dump(H, open(HIST, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
     rebuild_latest(H)
+    json.dump({'lastChecked': dt.date.today().isoformat(), 'latestQuarter': q, 'note': '수집 완료'}, open(STATUS, 'w', encoding='utf-8'), ensure_ascii=False)
     update_manifest()
 
 def update_manifest():   # 공개 자료 목록의 파일 확인값을 새 파일에 맞춘다
