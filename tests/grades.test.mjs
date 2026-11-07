@@ -75,13 +75,17 @@ test('web mention map is the quarter-stratified sum of the latest four quarters 
   assert.match(M.meta.note,/층화 추출/);assert.equal(M.meta.breaks.length,3);
   const ids=new Set(data.grids.map(g=>g.id));for(const g of Object.keys(M.grids))assert.ok(ids.has(g),g);});
 
-import {gridG1,gridG4,licenseEB,seoulLicRefs,gridCompositeEB,refFromAgg,gammaQ,betaI,normSf} from '../src/grades.js';
+import {gridG1,gridG4,licenseEB,seoulLicRefs,gridCompositeEB,refFromAgg,gammaQ,betaI,normSf,gammaDiffSf} from '../src/grades.js';
 const panelNew=dongPanel(mergeData(base,null).dong,seoulRefs(base,null));
-test('browser dong grades reproduce protocol 48 (Seoul references) for every dong-quarter',()=>{let n=0,bad=[];
-  for(const [k,v] of Object.entries(ref.dongP48)){const [q,code]=k.split('|');const x=panelNew[q]?.[code]||{};
-    for(const [c,pc] of [['C1','N1'],['C2','N2'],['C3','N3'],['C4','N4'],['COMP','NA1']]){n++;if((x[c]??null)!==v[pc])bad.push(`${k} ${c} ${x[c]} vs ${v[pc]}`);}}
-  assert.deepEqual(bad.slice(0,10),[]);assert.equal(n,289*5);});
+test('browser dong grades reproduce protocol 50 (Seoul references, open/close posterior 0.8, Seoul-way sales) for every dong-quarter',()=>{let n=0,bad=[];
+  for(const [k,v] of Object.entries(ref.dongP50)){const [q,code]=k.split('|');const x=panelNew[q]?.[code]||{};
+    for(const [c,pc] of [['C1','N1'],['C2','N2'],['C3','N3'],['C4','N4'],['COMP','NA1']]){n++;if((x[c]??null)!==v[pc])bad.push(`${k} ${c} ${x[c]} vs ${v[pc]}`);}
+    if(v.weak2!=null&&!!x.weak2!==v.weak2)bad.push(`${k} weak2 ${x.weak2} vs ${v.weak2}`);}
+  for(const [k,p] of Object.entries(ref.dongP50Prob)){const [q,code]=k.split('|');const x=panelNew[q]?.[code]||{};[x.Po,x.Pc,x.Pn].forEach((y,i)=>{if(!(Math.abs(y-p[i])<1e-6))bad.push(`${k} P${i} ${y} vs ${p[i]}`);});}
+  assert.deepEqual(bad.slice(0,10),[]);assert.equal(n,289*5);
+  const q1=Object.values(panelNew['2026Q1']);assert.equal(q1.filter(x=>x.COMP==='위험').length,1);assert.equal(q1.filter(x=>x.COMP==='쇠퇴').length,5);});
 test('distribution functions match scipy values',()=>{
+  assert.ok(Math.abs(gammaDiffSf(30,1200,40,1100,0.005)-0.8081438725)<1e-6,`${gammaDiffSf(30,1200,40,1100,0.005)}`);
   assert.ok(Math.abs(gammaQ(8.5,6.2)-0.7753341394)<1e-6);assert.ok(Math.abs(betaI(0.4,12.5,20.3)-0.5981227011)<1e-6);assert.ok(Math.abs(normSf(0.8416212)-0.2)<1e-6);});
 test('browser grid grades reproduce protocol 49 (empirical Bayes, 0.8 rule) for every grid-quarter',()=>{
   const gd=Object.fromEntries(data.grids.map(x=>[x.id,x.dongCode])),ex=new Set(base.gridExcluded),rf=seoulRefs(base,null);
@@ -100,6 +104,7 @@ test('Seoul-wide provider and licence uploads rebuild the bundled Seoul referenc
   for(const [f,k] of [['VwsmAdstrdStorW.jsonl','stores'],['VwsmAdstrdSelngW.jsonl','sales']]){const rows=parseDelimited(readFileSync(new URL(f,RAWSEOUL),'utf8')).filter(r=>keep.has(r.STDR_YYQU_CD));assert.equal(kindOf(rows),k);ingest(rows,k,up,base);}
   const got=refFromAgg(up.seoulAgg['2026Q1'],up.seoulAgg['2025Q1']),want=base.seoulRef['2026Q1'];
   for(const k of ['o','c','ds','gL','gT','sg','sgT','dsS','gLS','gTS'])assert.ok(Math.abs(got[k]-want[k])<1e-8,`${k} ${got[k]} vs ${want[k]}`);
+  for(const k of ['vo','vc','mnet'])assert.ok(Math.abs(got[k]-want[k])<1e-9*Math.max(1,Math.abs(want[k])/1e-6),`${k} ${got[k]} vs ${want[k]}`);
   assert.ok(Object.keys(up.dong['2026Q1']).every(c=>c.startsWith('11200')));
   const ul={dong:{},grid:{}};for(const f of ['LOCALDATA_072404_seoul_slim.jsonl','LOCALDATA_072405_seoul_slim.jsonl']){const rows=parseDelimited(readFileSync(new URL(f,RAWSEOUL),'utf8'));assert.equal(kindOf(rows),'license');ingest(rows,'license',ul,base);}
   const sl=seoulLicRefs(base,ul);for(const q of ['2023Q1','2024Q3','2026Q1','2026Q2'])for(const k of ['o','c','A','C','sdA','sdC'])assert.ok(Math.abs(sl[q][k]-base.seoulLic[q][k])<1e-6*Math.max(1,Math.abs(base.seoulLic[q][k])),`${q} ${k} ${sl[q][k]} vs ${base.seoulLic[q][k]}`);});

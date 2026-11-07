@@ -1,6 +1,6 @@
 {
   "title": "성동구 상권 모니터링 공개 자료 목록",
-  "asOf": "2026-11-07",
+  "asOf": "2026-11-08",
   "note": "공개 화면이 불러오는 자료 파일과 파일 확인값(SHA-256)입니다. 원자료(월별 격자 관측값, 모형 입력값)는 공개하지 않습니다.",
   "files": {
     "data/observatory.json": {
@@ -12,8 +12,8 @@
       "sha256": "07d3e9692100549030f285c57684805d78227d8284dbabb502fb9f0c5ddadaa3"
     },
     "data/grades/base.json": {
-      "bytes": 2656162,
-      "sha256": "6337e37a3719772f1b35c5de3d525ee26b7725192e07b35121ed0689890762da"
+      "bytes": 2657700,
+      "sha256": "23ef1db820a00e53f5873cf551bcc5617063dc8c77c36274266425b66fd29f18"
     },
     "data/grades/card_upload_template.csv": {
       "bytes": 79,
