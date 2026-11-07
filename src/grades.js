@@ -6,24 +6,24 @@ export const CL = ['쇠퇴', '활성', '위험'];
 export const GRADE = { 활성: { color: '#0ca30c', ink: '#ffffff' }, 쇠퇴: { color: '#fab219', ink: '#0b0b0b' }, 위험: { color: '#d03b3b', ink: '#ffffff' }, none: { color: '#e1e0d9', ink: '#52514e' } };
 export const COMPONENTS = { COMP: '종합', C1: '임대료·매출', C2: '개·폐업', C3: '영업기간', C4: '업종 변화', C6: '온라인 관심도(참고)' };
 export const RULES = {
-  C1: '임대료 상승률이 매출 증가율보다 높으면 위험, 두 값이 모두 1% 미만이면 쇠퇴, 그 밖에는 활성으로 봅니다. 서울신용보증재단의 1층 환산임대료와 외식업 점포당 매출을 전년 같은 분기와 비교합니다.',
-  C2: '개업률과 폐업률이 모두 같은 분기 성동구 평균 이상이면 위험(점포 교체 과다), 폐업이 개업보다 많으면 쇠퇴, 그 밖에는 활성으로 봅니다.',
+  C1: '소속 행정동의 1층 환산임대료 상승률이 서울 소규모 상가 임대가격지수(한국부동산원) 상승률보다 높고, 임대료 상승률과 외식업 점포당 매출 증가율의 차이가 서울의 같은 차이보다 크면 위험으로 봅니다. 임대료 상승률이 서울 이하이면서 매출 증가율이 서울 행정동 중앙값보다 낮으면 쇠퇴, 그 밖에는 활성입니다. 전년 같은 분기와 비교합니다.',
+  C2: '개업률과 폐업률이 모두 같은 분기 서울 행정동 중앙값 이상이면 위험(점포 교체 과다), 폐업이 개업보다 많으면 쇠퇴, 그 밖에는 활성으로 봅니다.',
   C3: '폐업 점포의 평균 영업기간이 서울 평균 이상이면서 영업 중인 점포의 평균 영업기간이 서울 평균 미만이면 위험(오래 영업한 점포의 이탈), 영업 중인 점포의 평균 영업기간이 서울 평균 이상이면 쇠퇴, 그 밖에는 활성으로 봅니다.',
-  C4: '외식업 점포 비중이 늘면서 생활밀착(서비스·소매) 점포가 줄면 위험(업종 전환), 전체 점포가 줄면 쇠퇴, 그 밖에는 활성으로 봅니다. 전년 같은 분기와 비교합니다.',
-  COMP: '4개 항목 중 위험이 3개 이상이면 위험, 쇠퇴가 2개 이상이면 쇠퇴, 그 밖에는 활성으로 봅니다.',
-  GRID: '격자 안 카드 식음료 매출 증가율과 소속 행정동의 임대료 상승률을 임대료·매출 항목과 같은 기준으로 비교합니다. 분기 카드 결제가 250건 미만이거나, 3개월 중 빠진 달이 있거나, 전년 같은 분기 자료가 없으면 자료 부족으로 표시합니다. 성동구 면적이 50% 이하인 격자 40곳은 등급을 내지 않고, 카드 자료는 중심이 성동구 안에 있는 50m 칸만 집계합니다(경계 보정).',
-  GRIDC: '격자별 임대료·카드매출, 개·폐업(외식업 인허가, 최근 1년), 영업기간(외식업 인허가, 성동구 평균 대비), 업종 변화(전 업종 카드: 외식 매출 비중 증가와 생활밀착 매출 감소) 중 위험이 3개 이상이면 위험, 쇠퇴가 2개 이상이면 쇠퇴로 봅니다. 4개 항목이 모두 있는 격자(분기당 약 60~70곳)만 표시합니다. 성동구 면적이 50% 이하인 격자 40곳은 등급을 내지 않고, 카드 자료는 중심이 성동구 안에 있는 50m 칸만 집계합니다(경계 보정).',
+  C4: '외식업 점포 비중 증가폭이 서울 행정동 중앙값보다 크면서 생활밀착(서비스·소매) 점포 증감률이 서울 중앙값보다 낮으면 위험(업종 전환), 전체 점포 증감률이 서울 중앙값보다 낮으면 쇠퇴, 그 밖에는 활성으로 봅니다. 전년 같은 분기와 비교합니다.',
+  COMP: '4개 항목 중 위험이 3개 이상이면 위험, 쇠퇴가 2개 이상이면 쇠퇴, 그 밖에는 활성으로 봅니다. 각 항목은 서울 값을 기준점으로 비교합니다(Ding 외 2016, 서울시 상권변화지표).',
+  GRID: '격자 안 카드 외식 매출 증가율과 소속 행정동의 임대료 상승률을 행정동 임대료·매출 항목과 같은 방식으로 서울 기준점(부동산원 서울 임대가격지수, 서울 행정동 외식 매출 증가율 중앙값)과 비교합니다. 분기 외식 카드 결제가 30건 미만(NCHS 정밀도 기준)이거나, 3개월 중 빠진 달이 있거나, 전년 같은 분기 자료가 없으면 자료 부족으로 표시합니다. 성동구 면적이 50% 이하인 격자 40곳은 등급을 내지 않고, 카드 자료는 중심이 성동구 안에 있는 50m 칸만 집계합니다(경계 보정).',
+  GRIDC: '격자별 임대료·카드매출, 개·폐업(외식업 인허가, 최근 1년), 영업기간(외식업 인허가), 업종 변화(전 업종 카드) 중 위험이 3개 이상이면 위험, 쇠퇴가 2개 이상이면 쇠퇴로 봅니다. 기준점은 모두 서울 값입니다. 격자마다 업소 수가 적어 개·폐업률과 평균 영업기간은 경험적 베이즈로 추정하고(Clayton·Kaldor 1987), 서울보다 높거나 낮을 확률이 0.8을 넘을 때만 위험·쇠퇴로 봅니다(Richardson 외 2004). 어느 쪽으로도 0.8을 넘지 않아 활성이 된 격자는 근거 부족으로 옅게 표시합니다. 성동구 면적이 50% 이하인 격자 40곳은 등급을 내지 않고, 카드 자료는 중심이 성동구 안에 있는 50m 칸만 집계합니다(경계 보정).',
   C6: '네이버 검색어 트렌드(법정동·도로명과 맛집·카페·쇼핑·팝업·나들이를 합한 검색어)의 전년 같은 분기 대비 변화가 0보다 크고 같은 분기 성동구 중앙값보다 크면 위험(관심 급증), 0보다 작고 중앙값보다 작으면 쇠퇴, 그 밖에는 활성으로 봅니다. 종합 등급에 넣지 않는 참고 항목입니다.',
   WEB: '네이버 블로그 게시글 가운데 성동구 외식업소 상호와 연결된 글을 격자별로 센 값입니다(최근 4개 분기). 사람 검수 없이 자동 규칙(지명이거나 2글자 이하인 상호, 업소 여러 곳에 연결된 글 제외)만 적용했습니다. 최근 글이 많이 잡히는 수집 시점 편향은 분기 층화 추출로 맞췄습니다(분기마다 같은 건수를 뽑았을 때의 기대 건수). 매월 자동으로 점검해 직전 분기를 수집하며, 광고성 글은 걸러내지 않았습니다.',
 };
 export const VALIDATION = {
-  COMP: '다음 분기 등급 적중률 55.8%(무작위 배정 시 40.0%)로, 우연보다 높은 것이 통계적으로 확인되었습니다(2023년 4분기~2026년 1분기, 163건).',
-  C1: '다음 분기 등급 적중률 61.3%(무작위 배정 시 33.4%), 통계적으로 유의합니다.',
-  C2: '다음 분기 등급 적중률 41.2%(무작위 배정 시 34.0%), 통계적으로 유의합니다.',
+  COMP: '다음 분기 등급 적중률 65.0%(현재 등급을 그대로 둘 때 62.0%, 무작위 배정 시 43.9%), 변별력(AUC) 0.736으로 통계적으로 유의합니다(2023년 4분기~2026년 1분기, 163건). 위험 행정동 비중은 분기 중앙값 11.8%입니다.',
+  C1: '다음 분기 등급 적중률 62.6%(현재 등급을 그대로 둘 때 64.4%, 무작위 배정 시 34.1%), 통계적으로 유의합니다.',
+  C2: '다음 분기 등급 적중률 41.2%(현재 등급을 그대로 둘 때 40.0%, 무작위 배정 시 34.5%), 통계적으로 유의합니다.',
   C3: '다음 분기 등급 적중률 98.2%. 분기마다 거의 바뀌지 않는 항목입니다.',
-  C4: '다음 분기 등급 적중률 72.4%(무작위 배정 시 34.8%), 통계적으로 유의합니다.',
-  GRID: '다음 분기 등급 적중률 63.3%(무작위 배정 시 34.5%, 경계 보정 후 2023년 3분기~2026년 1분기 1,742건)로, 우연보다 높은 것이 통계적으로 확인되었습니다.',
-  GRIDC: '다음 분기 등급 적중률 79.9%(무작위 배정 시 47.3%, 경계 보정 후). 같은 행정동 안에서도 격자 간 차이를 구분하며, 위험 격자 비중은 분기 중앙값 3.6%입니다.',
+  C4: '다음 분기 등급 적중률 77.1%(현재 등급을 그대로 둘 때 80.6%, 무작위 배정 시 44.2%), 통계적으로 유의합니다.',
+  GRID: '다음 분기 등급 적중률 66.5%(현재 등급을 그대로 둘 때 67.5%, 무작위 배정 시 36.1%), 변별력(AUC) 0.807로 통계적으로 유의합니다(경계 보정 후 2023년 3분기~2026년 1분기, 1,768건).',
+  GRIDC: '다음 분기 등급 적중률 86.9%(현재 등급을 그대로 둘 때 85.2%, 무작위 배정 시 71.8%), 변별력(AUC) 0.842로 통계적으로 유의하며 같은 행정동 안에서도 격자 간 차이를 구분합니다(1,684건). 위험 격자는 드물어 2023년 1분기~2026년 1분기 2,021건 중 11건입니다. 개·폐업 판정의 44%, 영업기간 판정의 54%는 근거 부족으로 활성입니다.',
   C6: '다음 분기 등급 적중률 59.4%(현재 등급을 그대로 둘 때 57.1%, 무작위 배정 시 48.3%). 다른 4개 항목·종합 등급과 거의 일치하지 않고(일치도 kappa −0.06~0.05) 위험 비중이 약 37%로 높아, 이 항목만으로 점검 대상을 정하지 않습니다. 분기 자료 등록으로 갱신되지 않으며 연구진이 검색어 트렌드를 다시 받아 갱신합니다.',
   WEB: '등급·예측에 쓰지 않는 참고 지도입니다. 과거 시점 검증이 불가능한 자료여서 상권 변화 판단의 근거로 쓰지 않고, 현장 조사 때 온라인 노출이 많은 곳을 확인하는 용도로만 씁니다.',
 };
@@ -32,7 +32,7 @@ export const GUIDE = [
   ['위험 1분기', '관찰 강화', '다음 분기 등급이 나오기 전에 위험으로 나온 항목의 원자료(임대료·개폐업·영업기간·업종 비중)를 확인합니다. 한 분기 결과만으로 조치하지 않습니다.'],
   ['쇠퇴', '상권 활성화 검토', '골목상권 활성화, 공실 대응, 소상공인 경영지원 사업의 대상 여부를 검토합니다.'],
   ['활성', '정기 확인', '분기별 갱신 때 등급 유지 여부를 확인합니다.'],
-  ['다음 분기 위험 예측', '사전 대비', '적중률 56% 수준의 참고 정보입니다. 예측만으로 대상을 정하지 않고 실제 등급을 확인한 뒤 판단합니다.'],
+  ['다음 분기 위험 예측', '사전 대비', '적중률 65% 수준의 참고 정보입니다. 예측만으로 대상을 정하지 않고 실제 등급을 확인한 뒤 판단합니다.'],
 ];
 export const CRITERIA_BASIS = [
   ['자본 재투자', '임대료가 영업 수익보다 빠르게 오름', '임대료·매출'],
@@ -52,6 +52,72 @@ export const qShift = (q, k) => { const n = (+q.slice(0, 4)) * 4 + (+q.slice(5))
 const pos = v => (typeof v === 'number' && v > 0 ? v : null);
 const lg = (a, b) => (pos(a) && pos(b) ? Math.log(a / b) : null);
 
+const num_ = v => (v == null || v === '' ? NaN : Number(v));
+const fin = (...v) => v.every(Number.isFinite);
+const plog = (a, b) => (a > 0 && b > 0 ? Math.log(a / b) : NaN);
+export const median = a => { const v = a.filter(Number.isFinite).sort((x, y) => x - y), n = v.length; return n ? (n % 2 ? v[(n - 1) / 2] : (v[n / 2 - 1] + v[n / 2]) / 2) : null; };
+
+// ---------- 서울 기준점 (프로토콜 48) ----------
+// 서울 행정동 집계 [점포, 개업, 폐업, 외식 점포, 생활밀착 점포, 외식 매출, 생활밀착 매출, 전체 매출] → 서울 행정동 중앙값
+export function refFromAgg(cur, lag) {
+  const c = { o: [], c: [], ds: [], gL: [], gT: [], sg: [], sgT: [], dsS: [], gLS: [], gTS: [] };
+  for (const [code, r0] of Object.entries(cur || {})) {
+    const [tot, op, cl, f, l, sF, sL, sT] = r0.map(num_), p = lag?.[code]?.map(num_) || new Array(8).fill(NaN), [tot4, , , f4, l4, sF4, sL4, sT4] = p;
+    const pt = v => (v > 0 ? v : NaN), spp = sF / (f > 0 ? f : NaN), spp4 = sF4 / (f4 > 0 ? f4 : NaN);
+    c.o.push(op / pt(tot)); c.c.push(cl / pt(tot));
+    c.ds.push((f / pt(tot) - f4 / pt(tot4)) * 100); c.gL.push(plog(l, l4)); c.gT.push(plog(tot, tot4));
+    c.sg.push(plog(spp, spp4)); c.sgT.push(plog(sF, sF4)); c.dsS.push((sF / pt(sT) - sF4 / pt(sT4)) * 100); c.gLS.push(plog(sL, sL4)); c.gTS.push(plog(sT, sT4));
+  }
+  return Object.fromEntries(Object.entries(c).map(([k, v]) => [k, median(v)]));
+}
+// 분기별 서울 기준점: 기본 자료(2026년 1분기까지) + 서울 전체 신보 파일을 등록한 분기. Rs = 부동산원 서울 소규모 상가 임대가격지수 전년 동분기 대비 로그 변화
+export function seoulRefs(base, up) {
+  const ref = structuredClone(base.seoulRef || {}), reb = { ...(base.reb || {}), ...(up?.reb || {}) }, agg = { ...(base.seoulDongAgg || {}), ...(up?.seoulAgg || {}) };
+  for (const q of Object.keys(up?.seoulAgg || {}).sort()) ref[q] = refFromAgg(agg[q], agg[qShift(q, -4)]);
+  for (const [q, r] of Object.entries(ref)) { const v = plog(reb[q], reb[qShift(q, -4)]); r.Rs = Number.isFinite(v) ? v : null; }
+  return ref;
+}
+// 서울 외식업 인허가 기준점(일반·휴게음식점): 기본 자료 + 서울 전체 인허가 파일을 등록한 분기
+export function seoulLicRefs(base, up) {
+  const out = structuredClone(base.seoulLic || {}), parts = up?.seoulLicParts || {}, types = Object.keys(parts);
+  if (!(types.includes('101') && types.includes('104'))) return out;
+  for (const q of Object.keys(parts['101'])) {
+    const s = ['101', '104'].map(t => parts[t][q]); if (!s.every(Boolean)) continue;
+    const [N, N4, O, C, aS, aS2, cS, cS2] = [0, 1, 2, 3, 4, 5, 6, 7].map(i => s[0][i] + s[1][i]), A = aS / N, Cm = cS / C;
+    out[q] = { o: O / N4, c: C / N4, A, C: Cm, sdA: Math.sqrt(Math.max(0, aS2 / N - A * A)), sdC: Math.sqrt(Math.max(0, cS2 / C - Cm * Cm)), N };
+  }
+  return out;
+}
+
+// ---------- 소지역 판정용 분포 함수 ----------
+function lnGamma(z) {
+  const g = 7, c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (z < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * z)) - lnGamma(1 - z);
+  z -= 1; let x = c[0]; for (let i = 1; i < g + 2; i++) x += c[i] / (z + i); const t = z + g + 0.5;
+  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+}
+export function gammaQ(a, x) {   // 상한 정규화 불완전 감마함수 Q(a, x) = P(Gamma(a, 1) > x)
+  if (x <= 0) return 1;
+  const gln = lnGamma(a);
+  if (x < a + 1) { let ap = a, sum = 1 / a, del = sum; for (let n = 0; n < 1000; n++) { ap++; del *= x / ap; sum += del; if (Math.abs(del) < Math.abs(sum) * 1e-15) break; } return 1 - sum * Math.exp(-x + a * Math.log(x) - gln); }
+  let b = x + 1 - a, c = 1 / 1e-300, d = 1 / b, hh = d;
+  for (let i = 1; i < 1000; i++) { const an = -i * (i - a); b += 2; d = an * d + b; if (Math.abs(d) < 1e-300) d = 1e-300; c = b + an / c; if (Math.abs(c) < 1e-300) c = 1e-300; d = 1 / d; const del = d * c; hh *= del; if (Math.abs(del - 1) < 1e-15) break; }
+  return Math.exp(-x + a * Math.log(x) - gln) * hh;
+}
+export function betaI(x, a, b) {   // 정규화 불완전 베타함수 I_x(a, b)
+  if (x <= 0) return 0; if (x >= 1) return 1;
+  const bt = Math.exp(lnGamma(a + b) - lnGamma(a) - lnGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+  const cf = (x, a, b) => { const qab = a + b, qap = a + 1, qam = a - 1; let c = 1, d = 1 - qab * x / qap; if (Math.abs(d) < 1e-300) d = 1e-300; d = 1 / d; let h = d;
+    for (let m = 1; m < 3000; m++) { const m2 = 2 * m; let aa = m * (b - m) * x / ((qam + m2) * (a + m2)); d = 1 + aa * d; if (Math.abs(d) < 1e-300) d = 1e-300; c = 1 + aa / c; if (Math.abs(c) < 1e-300) c = 1e-300; d = 1 / d; h *= d * c;
+      aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2)); d = 1 + aa * d; if (Math.abs(d) < 1e-300) d = 1e-300; c = 1 + aa / c; if (Math.abs(c) < 1e-300) c = 1e-300; d = 1 / d; const del = d * c; h *= del; if (Math.abs(del - 1) < 1e-15) break; }
+    return h; };
+  return x < (a + 1) / (a + b + 2) ? bt * cf(x, a, b) / a : 1 - bt * cf(1 - x, b, a) / b;
+}
+export function normSf(z) {   // 표준정규분포 P(Z > z)
+  const t = 1 / (1 + 0.5 * Math.abs(z / Math.SQRT2)), y = t * Math.exp(-(z * z / 2) - 1.26551223 + t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))));
+  return z >= 0 ? y / 2 : 1 - y / 2;
+}
+
 // ---------- 등급 계산 ----------
 // grid: 원래 정의(카드 식음료 = 전 업종 카드의 외식 업종, 격자 전체) · gridB: 경계 보정(프로토콜 45, 중심이 성동구 안인 50m 칸만)
 export function mergeData(base, up) {
@@ -68,7 +134,22 @@ export function mergeFood(baseGrid, parts) {
   }
   return grid;
 }
-export function dongPanel(dong) {
+// 행정동 등급(프로토콜 48): 서울 기준점과 비교. 영업기간은 원래부터 서울 평균 대비라 그대로 사용
+export function dongPanel(dong, ref = {}) {
+  const old = dongPanelOrig(dong), out = {};
+  for (const [q, recs] of Object.entries(old)) for (const [code, b] of Object.entries(recs)) {
+    const r = dong[q][code], s = ref[q] || {}, x = { rg: b.rg, sg: b.sg, opr_r: b.opr_r, cls_r: b.cls_r, C3: b.C3 };
+    if (fin(b.rg, b.sg, s.Rs, s.sg)) { x.rgR = b.rg - s.Rs; x.sgR = b.sg - s.sg; const gap = (b.rg - b.sg) - (s.Rs - s.sg); x.C1 = x.rgR > 0 && gap > 0 ? '위험' : x.rgR <= 0 && x.sgR < 0 ? '쇠퇴' : '활성'; }
+    if (r.stores > 0 && fin(s.o, s.c)) { const o = r.open / r.stores, c = r.close / r.stores; x.oR = o - s.o; x.cR = c - s.c; x.C2 = x.oR >= 0 && x.cR >= 0 ? '위험' : c > o ? '쇠퇴' : '활성'; }
+    if (fin(b.ds, s.ds, s.gL, s.gT)) { x.dsR = b.ds - s.ds; x.gLR = fin(b.gL) ? b.gL - s.gL : NaN; x.gTR = fin(b.gT) ? b.gT - s.gT : NaN; x.C4 = x.dsR > 0 && x.gLR < 0 ? '위험' : x.gTR < 0 ? '쇠퇴' : '활성'; }
+    const parts = ['C1', 'C2', 'C3', 'C4'].map(k => x[k] ?? null);
+    if (parts.every(Boolean)) { x.R = parts.filter(g => g === '위험').length; x.D = parts.filter(g => g === '쇠퇴').length; x.COMP = x.R >= 3 ? '위험' : x.D >= 2 ? '쇠퇴' : '활성'; }
+    (out[q] ||= {})[code] = x;
+  }
+  return out;
+}
+// 원래 정의(프로토콜 38·39·41): 2026년 2분기 발행 예측의 채점에만 사용
+export function dongPanelOrig(dong) {
   const out = {}, qs = Object.keys(dong).sort();
   for (const q of qs) {
     const recs = dong[q], tot = Object.values(recs).reduce((a, r) => [a[0] + r.open, a[1] + r.close, a[2] + r.stores], [0, 0, 0]);
@@ -148,6 +229,94 @@ export function gridComposite(g1, licG, aiG, quarters) {
   }
   return out;
 }
+// ---------- 250m 격자 등급 (프로토콜 49): G1·G4 서울 기준점, G2·G3 경험적 베이즈 + 사후확률 0.8 ----------
+export const CUT = 0.8;
+export function gridG1(gridB, panel, gridDong, ref, excluded = null) {   // 임대료(소속 동) 대 카드 외식 매출, 결제 30건 이상·3개월
+  const out = {}, ok = v => v && v.months === 3 && v.cnt >= 30 && v.amt > 0;
+  for (const q of Object.keys(gridB).sort()) for (const [id, r] of Object.entries(gridB[q])) {
+    if (excluded?.has(id)) continue;
+    const p = gridB[qShift(q, -4)]?.[id], x = panel[q]?.[gridDong[id]], s = ref[q] || {};
+    if (!ok(r) || !ok(p) || !x || !fin(x.rg, s.Rs, s.sgT)) continue;
+    const sg = Math.log(r.amt / p.amt), rgR = x.rg - s.Rs, sgR = sg - s.sgT, gap = (x.rg - sg) - (s.Rs - s.sgT);
+    (out[q] ||= {})[id] = { G1: rgR > 0 && gap > 0 ? '위험' : rgR <= 0 && sgR < 0 ? '쇠퇴' : '활성', rgR, sgR };
+  }
+  return out;
+}
+export function gridG4(allindB, ref, excluded = null) {   // 전 업종 카드 업종 구성, 결제 30건 이상·3개월
+  const out = {}, ok = v => v && v[3] >= 30 && v[4] === 3 && v[0] - v[1] > 0;
+  for (const q of Object.keys(allindB)) for (const [id, r] of Object.entries(allindB[q])) {
+    if (excluded?.has(id)) continue;
+    const p = allindB[qShift(q, -4)]?.[id], s = ref[q] || {}; if (!ok(r) || !ok(p) || !fin(s.dsS, s.gLS, s.gTS)) continue;
+    const dsR = (r[1] / r[0] - p[1] / p[0]) * 100 - s.dsS, gNR = Math.log((r[0] - r[1]) / (p[0] - p[1])) - s.gLS, gTR = Math.log(r[0] / p[0]) - s.gTS;
+    (out[q] ||= {})[id] = { G4: dsR > 0 && gNR < 0 ? '위험' : gTR < 0 ? '쇠퇴' : '활성', dsR, gNR, gTR };
+  }
+  return out;
+}
+export function licenseCounts(lic, quarters) {   // 격자별 영업(N)·전년 말 영업(N4)·최근 4분기 개업(O)·폐업(C)·평균 영업기간(A)·폐업 점포 평균 영업기간(Cm)
+  const out = {};
+  for (const q of quarters) {
+    const e = qEnd(q), w0 = qStart(qShift(q, -3)), e4 = qEnd(qShift(q, -4)), de = days(e), g = {};
+    for (const [, id, apv, dcb] of lic) {
+      const a = (g[id] ||= { N: 0, N4: 0, O: 0, C: 0, aS: 0, cS: 0 });
+      if (apv <= e && (!dcb || dcb > e)) { a.N++; a.aS += (de - days(apv)) / 30.4375; }
+      if (apv <= e4 && (!dcb || dcb > e4)) a.N4++;
+      if (apv >= w0 && apv <= e) a.O++;
+      if (dcb && dcb >= w0 && dcb <= e) { a.C++; a.cS += (days(dcb) - days(apv)) / 30.4375; }
+    }
+    for (const a of Object.values(g)) { a.A = a.N ? a.aS / a.N : null; a.Cm = a.C ? a.cS / a.C : null; }
+    out[q] = g;
+  }
+  return out;
+}
+export function licenseEB(lic, quarters, sLic, excluded = null) {
+  const cnt = licenseCounts(lic, quarters), out = {};
+  for (const q of quarters) {
+    const s = sLic[q]; if (!s) continue;
+    const ids = Object.keys(cnt[q]).filter(id => !excluded?.has(id)), res = {};
+    // G2: 감마-포아송 경험적 베이즈(Clayton·Kaldor 1987, Marshall 1991 적률 추정), 사전 평균 = 서울 비율
+    const g2 = ids.filter(id => cnt[q][id].N4 >= 1), n = g2.map(id => cnt[q][id].N4), nbar = n.reduce((a, v) => a + v, 0) / n.length, post = {};
+    for (const [k, m] of [['O', s.o], ['C', s.c]]) {
+      const kk = g2.map(id => cnt[q][id][k]), s2 = n.reduce((a, ni, i) => a + ni * (kk[i] / ni - m) ** 2, 0) / n.reduce((a, v) => a + v, 0), v = s2 - m / nbar;
+      post[k] = v > 0 ? g2.map((_, i) => [m * m / v + kk[i], m / v + n[i], m]) : null;
+    }
+    g2.forEach((id, i) => {
+      const o = post.O?.[i], c = post.C?.[i], x = (res[id] ||= {});
+      x.Po = o ? gammaQ(o[0], o[1] * o[2]) : 0.5; x.oE = o ? o[0] / o[1] - o[2] : 0;
+      x.Pc = c ? gammaQ(c[0], c[1] * c[2]) : 0.5; x.cE = c ? c[0] / c[1] - c[2] : 0;
+      x.Pcd = o && c ? betaI(o[1] / (o[1] + c[1]), o[0], c[0]) : 0.5;   // P(폐업률 > 개업률)
+      x.G2 = x.Po > CUT && x.Pc > CUT ? '위험' : x.Pcd > CUT ? '쇠퇴' : '활성';
+      x.weak2 = Math.max(...[x.Po, x.Pc, x.Pcd].map(p => Math.max(p, 1 - p))) <= CUT;
+    });
+    // G3: 정규 경험적 베이즈, 사전 평균 = 서울 평균 영업기간
+    for (const [xc, nc, r0, sig, pc, ec] of [['A', 'N', s.A, s.sdA, 'PA', 'A_E'], ['Cm', 'C', s.C, s.sdC, 'PC', 'C_E']]) {
+      const g3 = ids.filter(id => cnt[q][id][nc] >= 1 && cnt[q][id][xc] != null), xs = g3.map(id => cnt[q][id][xc]), s2 = g3.map(id => sig ** 2 / cnt[q][id][nc]);
+      const tau2 = g3.length ? Math.max(0, xs.reduce((a, v) => a + (v - r0) ** 2, 0) / xs.length - s2.reduce((a, v) => a + v, 0) / s2.length) : 0;
+      g3.forEach((id, i) => { const x = (res[id] ||= {});
+        if (tau2 === 0) { x[pc] = 0.5; x[ec] = 1; return; }
+        const pv = 1 / (1 / tau2 + 1 / s2[i]), pm = pv * (r0 / tau2 + xs[i] / s2[i]); x[pc] = normSf((r0 - pm) / Math.sqrt(pv)); x[ec] = pm / r0; });
+    }
+    for (const id of ids) {
+      const a = cnt[q][id], x = res[id]; if (!x || !(a.N >= 1) || x.PA == null) continue;
+      if (!(a.C >= 1)) { x.PC = 0; x.C_E = 1; }   // 최근 1년 폐업 없음: 위험 판정 불가
+      x.G3 = x.PC > CUT && 1 - x.PA > CUT ? '위험' : x.PA > CUT ? '쇠퇴' : '활성';
+      x.weak3 = Math.max(Math.max(x.PA, 1 - x.PA), a.C >= 1 ? Math.max(x.PC, 1 - x.PC) : 0) <= CUT;
+    }
+    for (const [id, x] of Object.entries(res)) { const a = cnt[q][id]; Object.assign(x, { N: a.N, N4: a.N4, O: a.O, C: a.C }); }
+    out[q] = res;
+  }
+  return out;
+}
+export function gridCompositeEB(g1, eb, g4, quarters) {
+  const out = {};
+  for (const q of quarters) for (const id of Object.keys(g1[q] || {})) {
+    const e = eb[q]?.[id], parts = [g1[q][id].G1, e?.G2, e?.G3, g4[q]?.[id]?.G4];
+    if (!parts.every(Boolean)) continue;
+    const R = parts.filter(g => g === '위험').length, D = parts.filter(g => g === '쇠퇴').length, GC = R >= 3 ? '위험' : D >= 2 ? '쇠퇴' : '활성';
+    const weak = [false, !!e.weak2 && e.G2 === '활성', !!e.weak3 && e.G3 === '활성', false];
+    (out[q] ||= {})[id] = { GC, R, D, parts, weak, thin: GC === '활성' && weak.some(Boolean) };
+  }
+  return out;
+}
 // EPSG:5174 (Bessel 수정중부원점 TM) → WGS84: PROJ 'Korean 1985 to WGS 84 (1)' Molodensky-Badekas 좌표계 회전 규약과 같은 식
 export function tm5174ToWgs(X, Y) {
   const a = 6377397.155, f = 1 / 299.1528128, e2 = f * (2 - f), ep2 = e2 / (1 - e2), lat0 = 38 * Math.PI / 180, lon0 = 127.002890277778 * Math.PI / 180;
@@ -208,12 +377,15 @@ export function scoreIssued(rows, observed, nperm = 2000, seed = 20261103) {
   return { n: ids.length, issued: Object.keys(rows).length, acc, chance, auc, p: (1 + ge) / (nperm + 1), pass: auc > 0.5 && (1 + ge) / (nperm + 1) < 0.05 };
 }
 export function observedGetter(gs, key, q) {
-  return { COMP: id => gs.panel[q]?.[id]?.COMP, C1: id => gs.panel[q]?.[id]?.C1, GRID: id => gs.gridOrig[q]?.[id], GRIDC: id => gs.gridCOrig[q]?.[id]?.GC }[key];   // 격자 발행 예측은 원래 정의로 채점
+  return { COMP: id => gs.panelOrig[q]?.[id]?.COMP, C1: id => gs.panelOrig[q]?.[id]?.C1, GRID: id => gs.gridOrig[q]?.[id], GRIDC: id => gs.gridCOrig[q]?.[id]?.GC }[key];   // 발행 예측은 모두 원래 정의로 채점
 }
 
 // ---------- 다음 분기 예측: 다항 로지스틱 (표준화, L2, C=1) ----------
-export const FEATS = ['COMP_쇠퇴', 'COMP_활성', 'COMP_위험', 'R', 'D', 'rg', 'sg', 'o_rel', 'c_rel', 'opr_r', 'cls_r', 'ds', 'gL', 'gT'];
-const featVec = x => [x.COMP === '쇠퇴' ? 1 : 0, x.COMP === '활성' ? 1 : 0, x.COMP === '위험' ? 1 : 0, x.R, x.D, x.rg, x.sg, x.o_rel, x.c_rel, x.opr_r, x.cls_r, x.ds, x.gL, x.gT];
+// 특성: 종합 등급(원-핫), 위험·쇠퇴 항목 수, 항목별 연속값. 프로토콜 48 D1과 같은 구성
+export const FEATS = ['COMP_쇠퇴', 'COMP_활성', 'COMP_위험', 'R', 'D', 'rgR', 'sgR', 'oR', 'cR', 'opr_r', 'cls_r', 'dsR', 'gLR', 'gTR'];
+export const featVec = x => [x.COMP === '쇠퇴' ? 1 : 0, x.COMP === '활성' ? 1 : 0, x.COMP === '위험' ? 1 : 0, x.R, x.D, x.rgR, x.sgR, x.oR, x.cR, x.opr_r, x.cls_r, x.dsR, x.gLR, x.gTR];
+// 원래 정의의 특성(2026년 2분기 발행 예측과 같은 구성)
+export const featVecOrig = x => [x.COMP === '쇠퇴' ? 1 : 0, x.COMP === '활성' ? 1 : 0, x.COMP === '위험' ? 1 : 0, x.R, x.D, x.rg, x.sg, x.o_rel, x.c_rel, x.opr_r, x.cls_r, x.ds, x.gL, x.gT];
 export function fitLogit(X, y, C = 1, iters = 4000) {
   const n = X.length, d = X[0].length, K = CL.length;
   const mu = Array.from({ length: d }, (_, j) => X.reduce((a, r) => a + r[j], 0) / n);
@@ -231,13 +403,13 @@ export function fitLogit(X, y, C = 1, iters = 4000) {
   }
   return x => { const z = x.map((v, j) => (v - mu[j]) / sd[j]), s = W.map((w, k) => b[k] + w.reduce((a, v, j) => a + v * z[j], 0)), m = Math.max(...s), e = s.map(v => Math.exp(v - m)), S = e.reduce((a, v) => a + v, 0); return e.map(v => v / S); };
 }
-export function forecastNext(panel) {
+export function forecastNext(panel, fv = featVec) {
   const qs = Object.keys(panel).filter(q => Object.values(panel[q]).some(x => x.COMP)).sort(), last = qs.at(-1); if (!last) return null;
   const X = [], y = [];
-  for (const q of qs) for (const [code, x] of Object.entries(panel[q])) { const nx = panel[qShift(q, 1)]?.[code]; if (x.COMP && nx?.COMP) { X.push(featVec(x)); y.push(nx.COMP); } }
+  for (const q of qs) for (const [code, x] of Object.entries(panel[q])) { const nx = panel[qShift(q, 1)]?.[code]; if (x.COMP && nx?.COMP) { X.push(fv(x)); y.push(nx.COMP); } }
   if (X.length < 30) return null;
   const model = fitLogit(X, y), out = {};
-  for (const [code, x] of Object.entries(panel[last])) if (x.COMP) { const p = model(featVec(x)); out[code] = { grade: CL[p.indexOf(Math.max(...p))], p }; }
+  for (const [code, x] of Object.entries(panel[last])) if (x.COMP) { const p = model(fv(x)); out[code] = { grade: CL[p.indexOf(Math.max(...p))], p }; }
   return { origin: last, target: qShift(last, 1), pairs: X.length, grades: out };
 }
 
@@ -268,7 +440,33 @@ export function kindOf(rows) {
 export function ingest(rows, kind, up = { dong: {}, grid: {} }, base = null) {
   if (kind === 'license') {   // LOCALDATA 일반음식점·휴게음식점·제과점 전체 스냅숏: 관리번호 가운데 코드(101·104·121)별로 기본 자료를 교체
     const loc = makeGridLocator(base.gridWgs), excl = new Set(base.licExcluded), bout = new Set(base.licBoutique), byType = {};
+    const seoulWide = rows.some(r => { const m = pick(r, 'MGTNO', '관리번호'); return m && !m.startsWith('3030000'); });
+    if (seoulWide) {   // 서울 전체 파일: 서울 기준점(개업률·폐업률·평균 영업기간) 집계 후 성동구(3030000) 업소만 격자에 배정
+      const recs = {}; let maxD = 0;
+      for (const r of rows) {
+        const mgt = pick(r, 'MGTNO', '관리번호'), type = mgt.split('-')[1], ut = pick(r, 'UPTAENM', '업태구분명'), st = pick(r, 'TRDSTATENM', '영업상태명');
+        const apv = ymd(pick(r, 'APVPERMYMD', '인허가일자')), closed = st.includes('폐업'), dcb = closed ? ymd(pick(r, 'DCBYMD', '폐업일자')) : 0;
+        if (!type || excl.has(ut) || !apv || (closed && !dcb)) continue;
+        (recs[type] ||= []).push([apv, dcb]); maxD = Math.max(maxD, apv, dcb);
+      }
+      const last = qShift(`${Math.floor(maxD / 10000)}Q${Math.floor((Math.floor(maxD / 100) % 100 - 1) / 3) + 1}`, -1), qs = [];
+      for (let q = '2021Q1'; q <= last; q = qShift(q, 1)) qs.push(q);
+      for (const [type, rr] of Object.entries(recs)) {
+        const P = ((up.seoulLicParts ||= {})[type] = {});
+        for (const q of qs) {
+          const e = qEnd(q), w0 = qStart(qShift(q, -3)), e4 = qEnd(qShift(q, -4)), de = days(e), a = [0, 0, 0, 0, 0, 0, 0, 0];
+          for (const [apv, dcb] of rr) {
+            if (apv <= e && (!dcb || dcb > e)) { const m = (de - days(apv)) / 30.4375; a[0]++; a[4] += m; a[5] += m * m; }
+            if (apv <= e4 && (!dcb || dcb > e4)) a[1]++;
+            if (apv >= w0 && apv <= e) a[2]++;
+            if (dcb && dcb >= w0 && dcb <= e) { const m = (days(dcb) - days(apv)) / 30.4375; a[3]++; a[6] += m; a[7] += m * m; }
+          }
+          P[q] = a;
+        }
+      }
+    }
     for (const r of rows) {
+      if (seoulWide && !pick(r, 'MGTNO', '관리번호').startsWith('3030000')) continue;
       const mgt = pick(r, 'MGTNO', '관리번호'), type = mgt.split('-')[1], ut = pick(r, 'UPTAENM', '업태구분명'), st = pick(r, 'TRDSTATENM', '영업상태명');
       const apv = ymd(pick(r, 'APVPERMYMD', '인허가일자')), closed = st.includes('폐업'), dcb = closed ? ymd(pick(r, 'DCBYMD', '폐업일자')) : 0;
       if (!type) continue; byType[type] ||= [];
@@ -295,6 +493,18 @@ export function ingest(rows, kind, up = { dong: {}, grid: {} }, base = null) {
   }
   const put = (q, code, f) => { const r = ((up.dong[q] ||= {})[code] ||= {}); f(r); };
   const sd = rows.filter(r => (r.ADSTRD_CD || '').startsWith('11200')), num = v => (v === '' || v == null ? null : Number(v));
+  if ((kind === 'stores' || kind === 'sales') && new Set(rows.map(r => r.ADSTRD_CD)).size > 100) {   // 서울 전체 파일: 서울 기준점용 행정동 집계
+    const acc = {};
+    for (const r of rows) {
+      const a = ((acc[qOf(r.STDR_YYQU_CD)] ||= {})[r.ADSTRD_CD] ||= [0, 0, 0, 0, 0]), g = r.SVC_INDUTY_CD.slice(0, 3);
+      if (kind === 'stores') { const n = num(r.STOR_CO) || 0; a[0] += n; a[1] += num(r.OPBIZ_STOR_CO) || 0; a[2] += num(r.CLSBIZ_STOR_CO) || 0; if (g === 'CS1') a[3] += n; if (g === 'CS2' || g === 'CS3') a[4] += n; }
+      else { const v = num(r.THSMON_SELNG_AMT) || 0; if (g === 'CS1') a[0] += v; if (g === 'CS2' || g === 'CS3') a[1] += v; a[2] += v; }
+    }
+    for (const [q, v] of Object.entries(acc)) for (const [code, a] of Object.entries(v)) {
+      const t = (((up.seoulAgg ||= {})[q] ||= {})[code] ||= [null, null, null, null, null, null, null, null]);
+      if (kind === 'stores') a.forEach((x, i) => { t[i] = x; }); else a.forEach((x, i) => { t[5 + i] = x; });
+    }
+  }
   if (kind === 'rent') for (const r of sd) if (num(r.RENT_FLOOR_CD) === 1) put(qOf(r.STDR_YYQU_CD), r.ADSTRD_CD, x => { x.rent = num(r.CNVRSN_RNTCHRG); x.rentCo = num(r.RENT_CO); });
   if (kind === 'sales') for (const r of sd) if (r.SVC_INDUTY_CD.startsWith('CS1')) put(qOf(r.STDR_YYQU_CD), r.ADSTRD_CD, x => { x.salesAmt = (x._s ? x.salesAmt : 0) + num(r.THSMON_SELNG_AMT); x.salesStores = (x._s ? x.salesStores : 0) + num(r.STOR_CO); x._s = 1; });
   if (kind === 'stores') for (const r of sd) put(qOf(r.STDR_YYQU_CD), r.ADSTRD_CD, x => { if (!x._t) Object.assign(x, { stores: 0, open: 0, close: 0, cs1: 0, cs2: 0, cs3: 0, _t: 1 }); x.stores += num(r.STOR_CO); x.open += num(r.OPBIZ_STOR_CO); x.close += num(r.CLSBIZ_STOR_CO); const g = r.SVC_INDUTY_CD.slice(0, 3).toLowerCase(); if (g in x) x[g] += num(r.STOR_CO); });
@@ -327,16 +537,19 @@ const EXCLUDED_CELL = (g, dong) => `<path d="${pathFor(g.geometry)}" fill="#8a8a
 const ISSUED_NAMES = { COMP: '행정동 종합 등급', C1: '행정동 임대료·매출 등급', GRID: '250m 격자 임대료·카드매출 등급', GRIDC: '250m 격자 종합 등급' };
 const KIND = { rent: '서울신용보증재단 임대료', sales: '서울신용보증재단 매출', stores: '서울신용보증재단 점포·개폐업', change: '서울신용보증재단 영업기간', card: '카드(식음료, 격자) · 반영하지 않음(전 업종 카드로 계산)', allind: '카드(전 업종, 격자)', license: '외식업 인허가' };
 export function buildModel(base, up, data) {
-  const merged = mergeData(base, up), panel = dongPanel(merged.dong);
+  const merged = mergeData(base, up), ref = seoulRefs(base, up), sLic = seoulLicRefs(base, up);
+  const panel = dongPanel(merged.dong, ref), panelOrig = dongPanelOrig(merged.dong);
   const gridDong = Object.fromEntries(data.grids.map(g => [g.id, g.dongCode]));
   const quarters = Object.keys(panel).filter(q => Object.values(panel[q]).some(x => x.C1 || x.C2)).sort();
-  const gq = quarters.filter(q => q >= '2023Q1'), lic = licenseGrades(mergeLicenses(base, up), gq), excluded = new Set(base.gridExcluded || []);
+  const gq = quarters.filter(q => q >= '2023Q1'), lic = mergeLicenses(base, up), excluded = new Set(base.gridExcluded || []);
   // 원래 정의(프로토콜 38·42): 2026년 2분기 발행 예측의 채점에만 사용
-  const gridOrig = gridGrades(merged.grid, panel, gridDong), gridCOrig = gridComposite(gridGrades(merged.grid, panel, gridDong, false), lic, allIndustryGrades(mergeAllInd(base, up)), gq);
-  // 경계 보정(프로토콜 45): 화면 표시
-  const grid = gridGrades(merged.gridB, panel, gridDong, false, excluded), gridC = gridComposite(grid, lic, allIndustryGrades(mergeAllInd(base, up, true)), gq);
+  const licOld = licenseGrades(lic, gq), gridOrig = gridGrades(merged.grid, panelOrig, gridDong), gridCOrig = gridComposite(gridGrades(merged.grid, panelOrig, gridDong, false), licOld, allIndustryGrades(mergeAllInd(base, up)), gq);
+  // 화면 표시(프로토콜 48·49, 경계 보정): 서울 기준점, 개·폐업·영업기간은 경험적 베이즈 사후확률 0.8
+  const g1 = gridG1(merged.gridB, panel, gridDong, ref, excluded), g4 = gridG4(mergeAllInd(base, up, true), ref, excluded), eb = licenseEB(lic, gq, sLic, excluded);
+  const gridC = gridCompositeEB(g1, eb, g4, gq), grid = Object.fromEntries(Object.entries(g1).map(([q, v]) => [q, Object.fromEntries(Object.entries(v).map(([id, x]) => [id, x.G1]))]));
   for (const [q, v] of Object.entries(base.searchC6 || {})) for (const [code, g] of Object.entries(v)) if (panel[q]?.[code]) panel[q][code].C6 = g;   // 참고 항목(프로토콜 44)
-  return { panel, grid, gridC, gridOrig, gridCOrig, excluded, web: base.webMentions, quarters, forecast: forecastNext(panel), merged };
+  const missingRef = Object.keys(merged.dong).filter(q => q >= '2023Q1' && (!fin(ref[q]?.Rs) || !fin(ref[q]?.o) || !fin(ref[q]?.sg))).sort();
+  return { panel, panelOrig, grid, gridC, gridOrig, gridCOrig, excluded, ref, sLic, missingRef, web: base.webMentions, quarters, forecast: forecastNext(panel), merged };
 }
 export const latestQuarter = gs => gs.quarters.filter(x => Object.values(gs.panel[x]).some(v => v.COMP)).at(-1);
 export const riskStreak = (gs, code, q) => { let n = 0, x = q; while (gs.panel[x]?.[code]?.COMP === '위험') { n++; x = qShift(x, -1); } return n; };
@@ -348,6 +561,7 @@ export function gradeSummary(gs, data) {
   return { q, risk, deep, gridRisk: gc.filter(x => x.GC === '위험').length, gridTotal: gc.length,
     forecastTarget: f?.target, forecastRisk: f ? data.dongs.filter(d => f.grades[d.code]?.grade === '위험') : [] };
 }
+const THIN_BADGE = `<span class="grade-badge" style="--g:#cfeccf;--gi:#0b0b0b">활성(근거 부족)</span>`;
 export const badge = g => `<span class="grade-badge" style="--g:${GRADE[g || 'none'].color};--gi:${GRADE[g || 'none'].ink}">${h(g || '자료 부족')}</span>`;
 export function dongMap(gs, data, layer, q, focus, cls = 'grade-map') {   // layer: 행정동 등급 키, 'GRID'(임대료·카드매출), 'GRIDC'(격자 종합)
   const grades = gs.panel[q] || {}, xs = data.dongs.flatMap(d => (d.geometry.type === 'Polygon' ? [d.geometry.coordinates] : d.geometry.coordinates).flat(3));
@@ -356,7 +570,7 @@ export function dongMap(gs, data, layer, q, focus, cls = 'grade-map') {   // lay
   const GN = ['임대료·카드매출', '개·폐업', '영업기간', '업종 변화'];
   const cells = layer === 'WEB' ? data.grids.map(g => { const w = gs.web?.grids?.[g.id], k = w ? webClass(w[0], webBreaks(gs)) : -1; return `<path d="${pathFor(g.geometry)}" ${k >= 0 ? `fill="${WEB_COLORS[k]}" fill-opacity=".8" stroke="#ffffff" stroke-width=".6"` : 'fill="none" stroke="#8a8a85" stroke-width=".5" stroke-dasharray="2 2"'}><title>${h(g.dong)} · 격자 ${h(g.id)} · ${w ? `최근 4개 분기 층화 기준 게시글 ${fmtN(w[0])}건(분기당 ${gs.web.meta.stratumSize ?? '–'}건 추출 기준) · 언급 업소 ${w[1]}곳` : '연결된 게시글 없음'}</title></path>`; }).join('')
     : layer === 'GRID' ? data.grids.map(g => { if (gs.excluded?.has(g.id)) return EXCLUDED_CELL(g, g.dong); const gr = gs.grid[q]?.[g.id]; return `<path d="${pathFor(g.geometry)}" ${gr ? `fill="${GRADE[gr].color}" fill-opacity=".72" stroke="#ffffff" stroke-width=".6"` : 'fill="none" stroke="#8a8a85" stroke-width=".5" stroke-dasharray="2 2"'}><title>${h(g.dong)} · 격자 ${h(g.id)} · ${h(gr || '자료 부족')}</title></path>`; }).join('')
-    : layer === 'GRIDC' ? data.grids.map(g => { if (gs.excluded?.has(g.id)) return EXCLUDED_CELL(g, g.dong); const x = gs.gridC[q]?.[g.id]; return `<path d="${pathFor(g.geometry)}" ${x ? `fill="${GRADE[x.GC].color}" fill-opacity=".72" stroke="#ffffff" stroke-width=".6"` : 'fill="none" stroke="#8a8a85" stroke-width=".5" stroke-dasharray="2 2"'}><title>${h(g.dong)} · 격자 ${h(g.id)} · ${h(x ? `종합 ${x.GC}(위험 항목 ${x.R}개) · ` + x.parts.map((p, i) => `${GN[i]} ${p}`).join(' · ') : '자료 부족')}</title></path>`; }).join('') : '';
+    : layer === 'GRIDC' ? data.grids.map(g => { if (gs.excluded?.has(g.id)) return EXCLUDED_CELL(g, g.dong); const x = gs.gridC[q]?.[g.id]; return `<path d="${pathFor(g.geometry)}" ${x ? (x.thin ? `fill="${GRADE.활성.color}" fill-opacity=".22" stroke="${GRADE.활성.color}" stroke-width=".6" stroke-dasharray="2 1.5"` : `fill="${GRADE[x.GC].color}" fill-opacity=".72" stroke="#ffffff" stroke-width=".6"`) : 'fill="none" stroke="#8a8a85" stroke-width=".5" stroke-dasharray="2 2"'}><title>${h(g.dong)} · 격자 ${h(g.id)} · ${h(x ? `종합 ${x.GC}${x.thin ? '(근거 부족)' : ''}(위험 항목 ${x.R}개) · ` + x.parts.map((p, i) => `${GN[i]} ${p}${x.weak[i] ? '(근거 부족)' : ''}`).join(' · ') : '자료 부족')}</title></path>`; }).join('') : '';
   if (layer === 'GRIDC' || layer === 'WEB') layer = 'GRID';
   const dongs = data.dongs.map(d => { const x = grades[d.code] || {}, gr = layer === 'GRID' ? null : x[layer];
     return `<path data-gdong="${d.code}" d="${pathFor(d.geometry)}" fill="${layer === 'GRID' || !gr ? 'transparent' : GRADE[gr].color}" fill-opacity=".55" stroke="${d.seongsu ? '#0b0b0b' : '#52514e'}" stroke-width="${d.seongsu ? 2.4 : 1.1}" class="grade-dong ${focus === d.code ? 'focus' : ''}" tabindex="0" role="button" aria-label="${h(d.name)} ${h(gr || '')}"><title>${h(d.name)} · ${h(COMPONENTS[layer] || '격자')} ${h(gr || '')}</title></path>`; }).join('');
@@ -373,6 +587,7 @@ export function gradesPage(st, data) {
   const isGrid = ['GRID', 'GRIDC', 'WEB'].includes(layer), key = isGrid ? null : layer, counts = Object.fromEntries(CL.map(c => [c, 0])); let none = 0;
   const gval = id => layer === 'GRIDC' ? gs.gridC[q]?.[id]?.GC : gs.grid[q]?.[id];
   if (key) for (const d of data.dongs) cur[d.code]?.[key] ? counts[cur[d.code][key]]++ : none++; else if (layer !== 'WEB') for (const g of data.grids) gval(g.id) ? counts[gval(g.id)]++ : none++;
+  const thin = layer === 'GRIDC' ? Object.values(gs.gridC[q] || {}).filter(x => x.thin).length : 0; if (thin) counts.활성 -= thin;
   const wp = gs.web?.meta?.period || [], br = webBreaks(gs), webCounts = WEB_COLORS.map((_, k) => data.grids.filter(g => gs.web?.grids?.[g.id] && webClass(gs.web.grids[g.id][0], br) === k).length);
   const webLabels = [`${fmtN(br[0])}건 이하`, `${fmtN(br[0])}~${fmtN(br[1])}건`, `${fmtN(br[1])}~${fmtN(br[2])}건`, `${fmtN(br[2])}건 초과`];
   const mapTitle = layer === 'WEB' ? `최근 4개 분기(${qLabel(wp[0])}~${qLabel(wp[1])}) · ${LAYER_NAMES.WEB}` : `${qLabel(q)} · ${LAYER_NAMES[layer]} 등급`;
@@ -383,7 +598,7 @@ export function gradesPage(st, data) {
   return `<div class="page-title"><div><p class="eyebrow">젠트리피케이션 대응 상권 모니터링</p><h1>등급 모니터링</h1><p class="subtitle">행정동별 활성·쇠퇴·위험 등급과 250m 격자 등급을 분기별로 확인하고, 다음 분기 예측과 분기 자료 등록을 처리합니다.</p></div></div>
   <div class="map-toolbar"><div class="control"><label for="g-quarter">기준 분기</label><select id="g-quarter">${gs.quarters.slice().reverse().map(x => `<option value="${x}" ${x === q ? 'selected' : ''}>${qLabel(x)}${upQs.includes(x) ? ' (등록 자료)' : ''}</option>`).join('')}</select></div>
   <div class="control"><label for="g-layer">표시 등급</label><select id="g-layer">${Object.entries(LAYER_NAMES).map(([k, v]) => `<option value="${k}" ${k === layer ? 'selected' : ''}>${h(v)}</option>`).join('')}</select></div>
-  <div class="grade-counts">${layer === 'WEB' ? WEB_COLORS.map((c, k) => `<span><span class="grade-badge" style="--g:${c};--gi:${k > 1 ? '#ffffff' : '#0b0b0b'}">${webLabels[k]}</span><b>${webCounts[k]}</b></span>`).join('') : `${CL.slice().reverse().map(c => `<span>${badge(c)}<b>${counts[c]}</b></span>`).join('')}<span>${badge(null)}<b>${none}</b></span>`}</div></div>
+  <div class="grade-counts">${layer === 'WEB' ? WEB_COLORS.map((c, k) => `<span><span class="grade-badge" style="--g:${c};--gi:${k > 1 ? '#ffffff' : '#0b0b0b'}">${webLabels[k]}</span><b>${webCounts[k]}</b></span>`).join('') : `${CL.slice().reverse().map(c => `<span>${badge(c)}<b>${counts[c]}</b></span>`).join('')}${layer === 'GRIDC' ? `<span>${THIN_BADGE}<b>${thin}</b></span>` : ''}<span>${badge(null)}<b>${none}</b></span>`}</div></div>
   <div class="grade-grid"><section class="panel grade-map-panel"><h2>${h(mapTitle)}</h2>${dongMap(gs, data, layer, q, st.gDong)}<p class="small-copy"><b>산출 기준</b> ${h(RULES[layer])}</p><p class="small-copy"><b>검증 결과</b> ${h(VALIDATION[layer])}</p><p class="small-copy">이 등급은 행정동 평균값 등을 이용한 참고 지표로, 실제 임대료 부담이나 내몰림 여부를 판정한 것이 아닙니다. 배경지도 © OpenStreetMap contributors</p></section>
   <aside class="grade-side">
     <section class="panel"><h2>${fd ? h(fd.name) : '행정동 선택'}</h2>${fd ? `<table class="data-table"><tbody>${Object.entries(COMPONENTS).map(([k, v]) => `<tr><td>${h(v)}</td><td>${badge(fx?.[k])}</td></tr>`).join('')}<tr><td>위험 항목 수</td><td><b>${fx?.R ?? '–'} / 4</b></td></tr><tr><td>종합 위험 연속</td><td><b>${riskStreak(gs, fd.code, q)}분기</b></td></tr>${f?.grades[fd.code] && f.origin === q ? `<tr><td>${qLabel(f.target)} 예측</td><td>${badge(f.grades[fd.code].grade)}</td></tr>` : ''}</tbody></table><button class="button small ${saved ? 'ghost' : 'primary'} wide" data-action="save-unit" data-unit="D:${fd.code}" data-quarter="${q}">${icon(saved ? 'check' : 'plus')}${saved ? '검토 기록에 등록됨' : '검토 기록에 추가'}</button>` : '<p class="small-copy">지도에서 행정동을 선택하면 항목별 등급, 위험 항목 수, 다음 분기 예측을 보여 줍니다.</p>'}</section>
@@ -393,13 +608,15 @@ export function gradesPage(st, data) {
   <section class="panel"><h2>등급 변화 추이 · ${h(isGrid ? '행정동 종합' : LAYER_NAMES[layer])} (최근 13개 분기, ● 성수동 4개 동)</h2>${flowMatrix(gs, data, isGrid ? 'COMP' : layer)}</section>
   <section class="panel"><h2>등급 기준의 근거</h2><p class="small-copy">젠트리피케이션은 여러 현상이 함께 나타나는 과정입니다. 선행연구(Davidson·Lees 2005)가 정리한 네 가지 정의 요소를 상권 자료로 옮겨 4개 항목을 만들었습니다.</p>
   <table class="data-table"><thead><tr><th>정의 요소</th><th>상권에서 나타나는 모습</th><th>등급 항목</th></tr></thead><tbody>${CRITERIA_BASIS.map(r => `<tr><td><b>${h(r[0])}</b></td><td>${h(r[1])}</td><td>${h(r[2])}</td></tr>`).join('')}</tbody></table>
-  <p class="small-copy"><b>기준의 출처</b> 항목 구성과 '여러 요소가 함께 나타날 때 위험'이라는 원리는 정의에서 왔습니다. 위험 3개 이상은 결과를 보기 전에 정한 비교 시험에서 골랐습니다(위험 동 비중 52.9% → 14.7%). 쇠퇴 2개 이상과 임대료·매출의 1% 기준은 관례로 둔 값으로, 앞으로 검증할 과제입니다.</p></section>
+  <p class="small-copy"><b>기준의 출처</b> 항목 구성과 '여러 요소가 함께 나타날 때 위험'이라는 원리는 정의에서 왔습니다. 항목별 기준점은 서울 값(서울 행정동 중앙값, 부동산원 서울 소규모 상가 임대가격지수, 서울 외식업 인허가)입니다(Ding 외 2016, 서울시 상권변화지표). 격자 카드 결제 최소 30건은 NCHS 정밀도 기준을, 격자 개·폐업·영업기간의 사후확률 0.8 판정은 소지역 질병지도 연구(Richardson 외 2004)를 따랐습니다. 위험 3개 이상은 결과를 보기 전에 정한 비교 시험에서 골랐습니다(위험 동 비중 52.9% → 14.7%). 쇠퇴 2개 이상은 선행연구 근거가 없는 관례값입니다. 행정동에서는 쇠퇴 등급이 이후 1년 점포 감소를 구분했지만(AUC 0.651) 1개·3개보다 낫다는 근거는 없고, 격자에서는 구분하지 못했습니다(AUC 0.524, p 0.074).</p></section>
   <section class="panel"><h2>활용 지침</h2><table class="data-table"><thead><tr><th>등급 상황</th><th>조치 단계</th><th>조치 내용</th></tr></thead><tbody>${GUIDE.map(r => `<tr><td><b>${h(r[0])}</b></td><td>${h(r[1])}</td><td>${h(r[2])}</td></tr>`).join('')}</tbody></table>
   <table class="data-table"><thead><tr><th>위험 항목</th><th>의미</th><th>검토 수단</th></tr></thead><tbody>${GUIDE_COMPONENT.map(r => `<tr><td><b>${h(r[0])}</b></td><td>${h(r[1])}</td><td>${h(r[2])}</td></tr>`).join('')}</tbody></table>
   <p class="small-copy">등급은 행정동 평균값 등을 이용한 참고 지표입니다. 개별 임대인·임차인 제재, 지원사업 적격 판정, 구역 지정의 단독 근거로 사용할 수 없습니다.</p></section>
   <section class="panel"><h2>사전 예측 검증 · ${h(qLabel(st.gIssued?.target || '2026Q2'))}</h2>${scorePanel(gs, st.gIssued)}</section>
   <section class="panel" id="grade-upload"><h2>분기 자료 등록</h2><p class="small-copy">서울신용보증재단 행정동 분기 원자료 4종, 신한카드 격자 자료(식음료·전 업종), 외식업 인허가 자료(LOCALDATA)를 선택하면 파일 종류와 분기를 자동으로 인식해 등급을 다시 계산합니다. 등록 자료는 이 브라우저에만 저장되며 서버로 전송되지 않습니다.</p>
   <div class="form-actions"><input type="file" id="g-files" multiple accept=".csv,.txt,.jsonl"><button class="button small ghost" data-gact="export">${icon('download')}등록 자료 내보내기</button><label class="button small ghost">${icon('plus')}등록 자료 불러오기<input type="file" id="g-import" accept=".json" hidden></label><button class="button small ghost" data-gact="reset">등록 자료 초기화</button></div>
+  <div class="form-actions"><label class="small-copy" for="g-reb-q">부동산원 서울 소규모 상가 임대가격지수</label><input id="g-reb-q" placeholder="예: 2026Q4" size="9" aria-label="지수 분기"><input id="g-reb-v" type="number" step="0.01" placeholder="지수 값" aria-label="지수 값"><button class="button small ghost" data-gact="reb">${icon('plus')}지수 등록</button><span class="small-copy">등록된 마지막 분기: ${h(qLabel(Object.keys({ ...st.gradeBase?.reb, ...up.reb }).sort().at(-1)))}</span></div>
+  ${gs.missingRef?.length ? `<p class="small-copy"><b>서울 기준점 없음</b> ${h(gs.missingRef.map(qLabel).join(', '))}: 서울 전체 서울신용보증재단 파일(점포·매출) 또는 부동산원 지수가 없어 행정동·격자 등급을 계산하지 못했습니다.</p>` : ''}
   ${UPLOAD_GUIDE}
   ${up.log?.length ? `<table class="data-table"><thead><tr><th>등록 시각</th><th>파일</th><th>자료 종류</th><th>분기</th><th>행 수</th></tr></thead><tbody>${up.log.slice(-12).reverse().map(l => `<tr><td>${h(l.at)}</td><td>${h(l.file)}</td><td>${h(KIND[l.kind] || '인식할 수 없는 파일')}</td><td>${h(l.quarters.map(x => /^\d{4}Q\d$/.test(x) ? qLabel(x) : x).join(', '))}</td><td>${l.rows.toLocaleString('ko-KR')}</td></tr>`).join('')}</tbody></table>` : '<p class="small-copy">등록한 자료가 없습니다. 기본 자료: 서울신용보증재단 2022년 1분기~2026년 1분기, 카드(전 업종) ~2026년 3분기, 외식업 인허가 2026년 9월 수집분.</p>'}</section>`;
 }
@@ -417,9 +634,10 @@ function scorePanel(gs, iss) {
 const UPLOAD_GUIDE = `<details class="upload-guide"><summary>분기 자료 등록 안내 (담당자용)</summary>
 <ol>
 <li><b>주기</b>: 분기마다 1회 등록합니다. 서울신용보증재단 분기 자료가 공개되면 같은 분기의 카드·인허가 자료와 함께 등록합니다.</li>
-<li><b>서울신용보증재단 행정동 분기 원자료 4종</b>(분기 폴더의 <code>04.행정동</code>): <code>TBSM_ADSTRD_RENT_CURPRC_QU</code>(임대료), <code>TBSM_ADSTRD_SELNG_QU</code>(매출), <code>TBSM_ADSTRD_STOR_QU</code>(점포·개폐업), <code>TBSM_ADSTRD_TRDAR_IX_QU</code>(영업기간). '|'로 구분된 원본 파일을 이름 그대로 등록합니다. 서울 전체 자료여도 성동구 행정동만 추출합니다.</li>
+<li><b>서울신용보증재단 행정동 분기 원자료 4종</b>(분기 폴더의 <code>04.행정동</code>): <code>TBSM_ADSTRD_RENT_CURPRC_QU</code>(임대료), <code>TBSM_ADSTRD_SELNG_QU</code>(매출), <code>TBSM_ADSTRD_STOR_QU</code>(점포·개폐업), <code>TBSM_ADSTRD_TRDAR_IX_QU</code>(영업기간). '|'로 구분된 서울 전체 원본 파일을 이름 그대로 등록합니다. 등급은 성동구 행정동만 계산하고, 점포·매출 파일의 다른 구 행정동은 서울 기준점 계산에만 씁니다.</li>
 <li><b>신한카드 전 업종 50m 자료</b>(격자 임대료·카드매출과 업종 변화): <code>source_table, ym, grid_50_id, industry, card_amount, card_count</code> 열이 있는 CSV입니다. 내국인·외국인 파일을 모두 등록합니다. 격자 임대료·카드매출 등급은 이 자료의 외식 업종(한식·중식·일식·양식·기타요식·패스트푸드·커피전문점·제과점)으로 계산하므로 250m 식음료 자료는 따로 등록하지 않아도 됩니다. 분기 3개월이 모두 있어야 그 분기의 격자 등급이 계산됩니다. 중심이 성동구 밖에 있는 50m 칸은 화면 등급에서 자동으로 제외합니다.</li>
-<li><b>외식업 인허가 자료(LOCALDATA)</b>(격자 종합의 개·폐업과 영업기간): 서울 열린데이터광장 또는 지방행정 인허가데이터의 일반음식점·휴게음식점·제과점영업 <b>업소 전체</b> 파일(CSV 또는 JSONL)입니다. 등록할 때마다 해당 업종 자료 전체를 교체하므로 일부만 잘라서 등록하지 않습니다.</li>
+<li><b>외식업 인허가 자료(LOCALDATA)</b>(격자 종합의 개·폐업과 영업기간): 서울 열린데이터광장 또는 지방행정 인허가데이터의 일반음식점·휴게음식점·제과점영업 <b>업소 전체</b> 파일(CSV 또는 JSONL)입니다. 등록할 때마다 해당 업종 자료 전체를 교체하므로 일부만 잘라서 등록하지 않습니다. 일반음식점·휴게음식점은 <b>서울 전체</b> 파일을 등록해야 서울 기준점(개업률·폐업률·평균 영업기간)이 새 분기로 갱신됩니다. 서울 전체 파일이어도 격자에는 성동구 업소만 배정합니다.</li>
+<li><b>서울 기준점</b>: 행정동·격자 등급은 서울 값과 비교합니다. 서울신용보증재단 점포·매출 파일은 <b>서울 전체</b> 파일을 그대로 등록합니다(서울 행정동 중앙값 계산). 한국부동산원 R-ONE의 '소규모 상가 임대가격지수(서울)' 분기 값은 위 입력란에 직접 등록합니다. 기준점이 없는 분기는 '서울 기준점 없음'으로 표시되고 등급이 계산되지 않습니다.</li>
 <li><b>확인</b>: 아래 등록 기록에서 자료 종류·분기·행 수를 확인합니다. '기준 분기' 목록에 새 분기가 '(등록 자료)'로 나타나면 반영된 것입니다. 행정동·격자 등급, 다음 분기 예측, 사전 예측 검증이 함께 갱신됩니다.</li>
 <li><b>보관·공유</b>: 등록 자료는 이 브라우저에만 저장됩니다. '등록 자료 내보내기'로 파일을 보관하고, 다른 PC나 담당자는 '등록 자료 불러오기'로 같은 상태를 만들 수 있습니다.</li>
 <li><b>유의사항</b>: 브라우저 저장공간을 지우면 등록 자료도 지워지므로 분기마다 내보내기 파일을 보관합니다. '인식할 수 없는 파일'로 표시되면 열 이름이 원본과 다른 것이므로 원본 파일을 다시 등록합니다.</li>

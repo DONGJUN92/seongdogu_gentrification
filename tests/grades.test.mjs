@@ -1,18 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {dongPanel,gridGrades,forecastNext,mergeData,parseDelimited,kindOf,ingest,qShift} from '../src/grades.js';
+import {dongPanel,dongPanelOrig,featVecOrig,seoulRefs,gridGrades,forecastNext,mergeData,parseDelimited,kindOf,ingest,qShift} from '../src/grades.js';
 const base=JSON.parse(await readFile(new URL('../data/grades/base.json',import.meta.url),'utf8'));
 const data=JSON.parse(await readFile(new URL('../data/observatory.json',import.meta.url),'utf8'));
 const ref=JSON.parse(await readFile(new URL('./grades-reference.json',import.meta.url),'utf8'));
-const panel=dongPanel(mergeData(base,null).dong);
+const panel=dongPanelOrig(mergeData(base,null).dong);   // 원래 정의(프로토콜 39·42·45 기준 검증과 발행 예측 채점)
 test('quarter arithmetic',()=>{assert.equal(qShift('2026Q1',-4),'2025Q1');assert.equal(qShift('2025Q4',1),'2026Q1');assert.equal(qShift('2023Q1',-1),'2022Q4');});
 test('browser grades match the Python protocol 39 grades for every dong-quarter',()=>{let n=0;for(const [k,v] of Object.entries(ref.dong)){const [q,code]=k.split('|');for(const c of ['C1','C2','C3','C4','COMP']){assert.equal(panel[q]?.[code]?.[c]??null,v[c],`${k} ${c}`);n++;}}assert.equal(n,289*5);});
 test('browser grid grades match the issued 2026Q1 grid grades (issued file lists grids that also have 2026Q2 card)',()=>{const g=gridGrades(base.grid,panel,Object.fromEntries(data.grids.map(x=>[x.id,x.dongCode])));const got=g['2026Q1']||{};for(const id of Object.keys(got).filter(id=>!(id in ref.grid2026Q1)))assert.ok(!g['2026Q2']?.[id],`${id} graded in 2026Q1 and 2026Q2 but absent from the issued file`);for(const [id,v] of Object.entries(ref.grid2026Q1))assert.equal(got[id],v,id);});
-test('browser forecast reproduces the issued 2026Q2 composite forecast',()=>{const f=forecastNext(panel);assert.equal(f.target,'2026Q2');assert.equal(f.pairs,193);for(const [code,v] of Object.entries(ref.forecast2026Q2)){assert.equal(f.grades[code].grade,v.grade,code);f.grades[code].p.forEach((p,i)=>assert.ok(Math.abs(p-v.p[i])<0.02,`${code} ${p} ${v.p[i]}`));}});
+test('browser forecast reproduces the issued 2026Q2 composite forecast',()=>{const f=forecastNext(panel,featVecOrig);assert.equal(f.target,'2026Q2');assert.equal(f.pairs,193);for(const [code,v] of Object.entries(ref.forecast2026Q2)){assert.equal(f.grades[code].grade,v.grade,code);f.grades[code].p.forEach((p,i)=>assert.ok(Math.abs(p-v.p[i])<0.02,`${code} ${p} ${v.p[i]}`));}});
 test('upload parser rebuilds a provider quarter identically to the bundled base',()=>{const q='2026Q1',src=base.dong[q];const rows={rent:[],sales:[],stores:[],change:[]};for(const [code,r] of Object.entries(src)){rows.rent.push({STDR_YYQU_CD:'20261',ADSTRD_CD:code,RENT_FLOOR_CD:'1',CNVRSN_RNTCHRG:String(r.rent),RENT_CO:String(r.rentCo)});rows.sales.push({STDR_YYQU_CD:'20261',ADSTRD_CD:code,SVC_INDUTY_CD:'CS100001',THSMON_SELNG_AMT:String(r.salesAmt),STOR_CO:String(r.salesStores)});rows.stores.push({STDR_YYQU_CD:'20261',ADSTRD_CD:code,SVC_INDUTY_CD:'CS100001',STOR_CO:String(r.cs1),OPBIZ_STOR_CO:String(r.open),CLSBIZ_STOR_CO:String(r.close)},{STDR_YYQU_CD:'20261',ADSTRD_CD:code,SVC_INDUTY_CD:'CS200001',STOR_CO:String(r.cs2),OPBIZ_STOR_CO:'0',CLSBIZ_STOR_CO:'0'},{STDR_YYQU_CD:'20261',ADSTRD_CD:code,SVC_INDUTY_CD:'CS300001',STOR_CO:String(r.cs3),OPBIZ_STOR_CO:'0',CLSBIZ_STOR_CO:'0'});rows.change.push({STDR_YYQU_CD:'20261',ADSTRD_CD:code,TRDAR_CHNGE_IX:'LL',OPR_SALE_MT_AVRG:String(r.opr),CLS_SALE_MT_AVRG:String(r.cls),SU_OPR_SALE_MT_AVRG:String(r.suOpr),SU_CLS_SALE_MT_AVRG:String(r.suCls)});}
   const up={dong:{},grid:{}};for(const [k,v] of Object.entries(rows)){assert.equal(kindOf(v),k);ingest(v,k,up);}
-  const stripped={...base,dong:{...base.dong,[q]:{}}};const p2=dongPanel(mergeData(stripped,up).dong);for(const code of Object.keys(src))for(const c of ['C1','C2','C3','C4','COMP'])assert.equal(p2[q][code][c]??null,panel[q][code][c]??null,`${code} ${c}`);
+  const stripped={...base,dong:{...base.dong,[q]:{}}};const p2=dongPanelOrig(mergeData(stripped,up).dong);for(const code of Object.keys(src))for(const c of ['C1','C2','C3','C4','COMP'])assert.equal(p2[q][code][c]??null,panel[q][code][c]??null,`${code} ${c}`);
   assert.equal(kindOf(parseDelimited('STDR_YYQU_CD|ADSTRD_CD|TRDAR_CHNGE_IX\n20262|11200520|LH')),'change');});
 import {licenseGrades,allIndustryGrades,gridComposite,tm5174ToWgs,makeGridLocator} from '../src/grades.js';
 test('EPSG:5174 conversion matches PROJ within 0.5 m',()=>{for(const [x,y,lo,la] of ref.proj5174){const [a,b]=tm5174ToWgs(x,y);assert.ok(Math.abs(a-lo)*88000<0.5&&Math.abs(b-la)*111000<0.5,`${x},${y}: ${a},${b} vs ${lo},${la}`);}});
@@ -74,3 +74,32 @@ test('web mention map is the quarter-stratified sum of the latest four quarters 
   for(const q of Object.keys(H.quarters))assert.equal(Object.values(H.quarters[q]).reduce((s,[n])=>s+n,0),H.totals[q],q);
   assert.match(M.meta.note,/층화 추출/);assert.equal(M.meta.breaks.length,3);
   const ids=new Set(data.grids.map(g=>g.id));for(const g of Object.keys(M.grids))assert.ok(ids.has(g),g);});
+
+import {gridG1,gridG4,licenseEB,seoulLicRefs,gridCompositeEB,refFromAgg,gammaQ,betaI,normSf} from '../src/grades.js';
+const panelNew=dongPanel(mergeData(base,null).dong,seoulRefs(base,null));
+test('browser dong grades reproduce protocol 48 (Seoul references) for every dong-quarter',()=>{let n=0,bad=[];
+  for(const [k,v] of Object.entries(ref.dongP48)){const [q,code]=k.split('|');const x=panelNew[q]?.[code]||{};
+    for(const [c,pc] of [['C1','N1'],['C2','N2'],['C3','N3'],['C4','N4'],['COMP','NA1']]){n++;if((x[c]??null)!==v[pc])bad.push(`${k} ${c} ${x[c]} vs ${v[pc]}`);}}
+  assert.deepEqual(bad.slice(0,10),[]);assert.equal(n,289*5);});
+test('distribution functions match scipy values',()=>{
+  assert.ok(Math.abs(gammaQ(8.5,6.2)-0.7753341394)<1e-6);assert.ok(Math.abs(betaI(0.4,12.5,20.3)-0.5981227011)<1e-6);assert.ok(Math.abs(normSf(0.8416212)-0.2)<1e-6);});
+test('browser grid grades reproduce protocol 49 (empirical Bayes, 0.8 rule) for every grid-quarter',()=>{
+  const gd=Object.fromEntries(data.grids.map(x=>[x.id,x.dongCode])),ex=new Set(base.gridExcluded),rf=seoulRefs(base,null);
+  const qs=[...new Set(Object.keys(ref.gridP49).map(k=>k.split('|')[0]))].sort().filter(q=>q>='2023Q1'&&q<='2026Q1');
+  const g1=gridG1(base.gridB,panelNew,gd,rf,ex),g4=gridG4(base.allindB,rf,ex),eb=licenseEB(base.lic,qs,seoulLicRefs(base,null),ex),gc=gridCompositeEB(g1,eb,g4,qs);
+  let n=0,bad=[];for(const [k,v] of Object.entries(ref.gridP49)){const [q,id]=k.split('|');if(!qs.includes(q))continue;
+    const got={H1:g1[q]?.[id]?.G1??null,E2:eb[q]?.[id]?.G2??null,E3:eb[q]?.[id]?.G3??null,H4:g4[q]?.[id]?.G4??null,EC:gc[q]?.[id]?.GC??null};
+    for(const c of ['H1','E2','E3','H4','EC']){n++;if(got[c]!==v[c])bad.push(`${k} ${c} ${got[c]} vs ${v[c]}`);}}
+  for(const [k,p] of Object.entries(ref.gridP49Prob)){const [q,id]=k.split('|');if(!qs.includes(q))continue;const e=eb[q]?.[id]||{};
+    [e.Po,e.Pc,e.Pcd,e.PA,e.PC].forEach((x,i)=>{if(p[i]!=null&&!(Math.abs(x-p[i])<1e-5))bad.push(`${k} P${i} ${x} vs ${p[i]}`);});}
+  assert.deepEqual(bad.slice(0,10),[]);assert.ok(n>8000);
+  const q1=Object.values(gc['2026Q1']);assert.equal(q1.length,157);assert.equal(q1.filter(x=>x.GC==='위험').length,1);assert.equal(q1.filter(x=>x.GC==='쇠퇴').length,30);});
+const RAWSEOUL=new URL('../../data/raw/seoul_refs_20261107/',import.meta.url);
+test('Seoul-wide provider and licence uploads rebuild the bundled Seoul references (local raw files only)',{skip:!existsSync(RAWSEOUL)},()=>{
+  const up={dong:{},grid:{}};const keep=new Set(['20251','20261']);
+  for(const [f,k] of [['VwsmAdstrdStorW.jsonl','stores'],['VwsmAdstrdSelngW.jsonl','sales']]){const rows=parseDelimited(readFileSync(new URL(f,RAWSEOUL),'utf8')).filter(r=>keep.has(r.STDR_YYQU_CD));assert.equal(kindOf(rows),k);ingest(rows,k,up,base);}
+  const got=refFromAgg(up.seoulAgg['2026Q1'],up.seoulAgg['2025Q1']),want=base.seoulRef['2026Q1'];
+  for(const k of ['o','c','ds','gL','gT','sg','sgT','dsS','gLS','gTS'])assert.ok(Math.abs(got[k]-want[k])<1e-8,`${k} ${got[k]} vs ${want[k]}`);
+  assert.ok(Object.keys(up.dong['2026Q1']).every(c=>c.startsWith('11200')));
+  const ul={dong:{},grid:{}};for(const f of ['LOCALDATA_072404_seoul_slim.jsonl','LOCALDATA_072405_seoul_slim.jsonl']){const rows=parseDelimited(readFileSync(new URL(f,RAWSEOUL),'utf8'));assert.equal(kindOf(rows),'license');ingest(rows,'license',ul,base);}
+  const sl=seoulLicRefs(base,ul);for(const q of ['2023Q1','2024Q3','2026Q1','2026Q2'])for(const k of ['o','c','A','C','sdA','sdC'])assert.ok(Math.abs(sl[q][k]-base.seoulLic[q][k])<1e-6*Math.max(1,Math.abs(base.seoulLic[q][k])),`${q} ${k} ${sl[q][k]} vs ${base.seoulLic[q][k]}`);});
