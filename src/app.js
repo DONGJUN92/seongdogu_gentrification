@@ -5,7 +5,7 @@ import { gradesPage, buildModel, loadUploads, saveUploads, handleFiles, gradeSum
 const $ = s => document.querySelector(s);
 const STORE = 'seongsu-observatory-note-v1';
 const AS_OF = '2026.11.03';
-const state = { data: null, parcels: [], requests: new Set(), grades: null, gradeBase: null, gUploads: loadUploads(), gLayer: 'COMP', gQuarter: '', gDong: '', gIssued: null, page: 'overview', parcelQuery: '', street: 'all', parcelLimit: 12, note: defaultNote(), menu: false };
+const state = { data: null, parcels: [], requests: new Set(), grades: null, gradeBase: null, gUploads: loadUploads(), gLayer: 'GRIDC', gQuarter: '', gDong: '', gGrid: '', gIssued: null, page: 'overview', parcelQuery: '', street: 'all', parcelLimit: 12, note: defaultNote(), menu: false };
 let toastTimer, storageOK = true;
 const sourceLink = id => { const s = SOURCES.find(x => x.id === id); return `<a class="source-link" href="${s.url}" target="_blank" rel="noopener noreferrer">${h(s.label)}${icon('external')}</a>`; };
 function toast(message) { $('#toast').textContent = message; $('#toast').classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 2700); }
@@ -71,11 +71,17 @@ function render() {
   const pages = { overview, grades: () => gradesPage(state, state.data), policy: policyPage, evidence: evidencePage, review: reviewPage };
   $('#app').innerHTML = shell(pages[state.page]());
   document.title = `${NAV.find(n => n[0] === state.page)?.[1]} · 성동구 상권 모니터링`;
+  placeGridPop();
   if (id && document.getElementById(id)) { const el = document.getElementById(id); el.focus({ preventScroll: true }); if (pos != null && el.setSelectionRange) el.setSelectionRange(pos, pos); }
+}
+function placeGridPop() {
+  const pop = $('.grid-pop'), cell = $('.grade-cell.sel'), wrap = $('.grade-map-wrap'); if (!pop || !cell || !wrap || matchMedia('(max-width:720px)').matches) return;
+  const w = wrap.getBoundingClientRect(), c = cell.getBoundingClientRect(), W = pop.offsetWidth, H = pop.offsetHeight; let x = c.right - w.left + 10; if (x + W > w.width) x = c.left - w.left - W - 10; if (x < 0) x = Math.max(0, (w.width - W) / 2);
+  pop.style.left = `${x}px`; pop.style.top = `${Math.max(0, Math.min(c.top - w.top - 30, Math.max(0, w.height - H)))}px`;
 }
 async function loadGrades() {
   if (state.requests.has('grades')) return; state.requests.add('grades');
-  try { const r = await fetch('/data/grades/base.json'); if (!r.ok) throw Error('grades'); state.gradeBase = await r.json(); try { const i = await fetch('/data/grades/issued_2026Q2.json'); if (i.ok) state.gIssued = await i.json(); } catch {} try { const w = await fetch('/data/grades/web_mentions.json'); if (w.ok) state.gradeBase.webMentions = await w.json(); } catch {} refreshGrades(); } catch { toast('등급 자료를 불러오지 못했습니다.'); } finally { state.requests.delete('grades'); }
+  try { const r = await fetch('/data/grades/base.json'); if (!r.ok) throw Error('grades'); state.gradeBase = await r.json(); try { const i = await fetch('/data/grades/issued_2026Q2.json'); if (i.ok) state.gIssued = await i.json(); } catch {} try { const w = await fetch('/data/grades/web_mentions.json'); if (w.ok) state.gradeBase.webMentions = await w.json(); } catch {} try { const p = await fetch('/data/grades/popups.json'); if (p.ok) state.gradeBase.popups = await p.json(); } catch {} try { const m = await fetch('/data/grades/popup_mentions.json'); if (m.ok) state.gradeBase.popupMentions = await m.json(); } catch {} refreshGrades(); } catch { toast('등급 자료를 불러오지 못했습니다.'); } finally { state.requests.delete('grades'); }
 }
 function refreshGrades() { state.grades = buildModel(state.gradeBase, state.gUploads, state.data); render(); }
 function addUnit(unit, quarter) {
@@ -91,6 +97,8 @@ function modal(kind) {
 }
 document.addEventListener('click', async e => {
   if (!state.data) return;
+  const gg = e.target.closest('[data-ggrid]'); if (gg) { state.gGrid = gg.dataset.ggrid; render(); return; }
+  if (e.target.closest('[data-action="close-grid"]')) { state.gGrid = ''; render(); return; }
   const gd = e.target.closest('[data-gdong]'); if (gd) { state.gDong = gd.dataset.gdong; if (state.page !== 'grades') location.hash = `#grades?dong=${gd.dataset.gdong}`; else render(); return; }
   const ga = e.target.closest('[data-gact]'); if (ga) { if (ga.dataset.gact === 'export') download(JSON.stringify(state.gUploads), '성동구상권모니터링_등록자료.json', 'application/json'); if (ga.dataset.gact === 'reb') { const q = (document.getElementById('g-reb-q')?.value || '').trim().toUpperCase(), v = Number(document.getElementById('g-reb-v')?.value); if (!/^\d{4}Q[1-4]$/.test(q) || !(v > 0)) { toast('분기(예: 2026Q4)와 0보다 큰 지수 값을 입력하십시오.'); return; } (state.gUploads.reb ||= {})[q] = v; saveUploads(state.gUploads); toast(`${q} 지수를 등록했습니다.`); refreshGrades(); return; } if (ga.dataset.gact === 'reset' && confirm('이 브라우저에 저장된 등록 자료를 모두 지울까요?')) { state.gUploads = { dong: {}, grid: {}, log: [] }; saveUploads(state.gUploads); refreshGrades(); } return; }
   const remove = e.target.closest('[data-remove]'); if (remove) { state.note.selected = state.note.selected.filter(id => id !== remove.dataset.remove); delete state.note.selectedQuarters[remove.dataset.remove]; persist(); render(); return; }
@@ -104,7 +112,7 @@ document.addEventListener('click', async e => {
   if (action === 'export-md') { download(markdownReport(state.note, { asOf: `${AS_OF} 공개 · 등급 기준 ${state.grades ? qLabel(latestQuarter(state.grades)) : '-'}` }, unitLabel), '성동구상권모니터링_검토서.md', 'text/markdown;charset=utf-8'); toast('검토서를 내려받았습니다.'); }
   if (action === 'export-json') { download(JSON.stringify({ ...state.note, asOf: AS_OF, policyApproval: false }, null, 2), '성동구상권모니터링_검토기록.json', 'application/json'); }
 });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.menu) { state.menu = false; render(); $('.mobile-menu')?.focus(); return; } const d = e.target.closest?.('[data-gdong]'); if (d && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); d.dispatchEvent(new MouseEvent('click', { bubbles: true })); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.menu) { state.menu = false; render(); $('.mobile-menu')?.focus(); return; } if (e.key === 'Escape' && state.gGrid) { state.gGrid = ''; render(); return; } const d = e.target.closest?.('[data-gdong],[data-ggrid]'); if (d && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); d.dispatchEvent(new MouseEvent('click', { bubbles: true })); } });
 document.addEventListener('change', e => {
   if (!state.data) return; const t = e.target;
   if (t.id === 'g-quarter') { state.gQuarter = t.value; render(); return; }

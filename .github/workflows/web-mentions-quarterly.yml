@@ -43,4 +43,5 @@ jobs:
           git add data/grades/web_mentions.json data/grades/web_mentions_history.json data/grades/web_mentions_status.json data/release-manifest.json
           if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
           git commit -m "Web mentions: quarterly collection or monthly check"
+          git pull --rebase origin main
           git push

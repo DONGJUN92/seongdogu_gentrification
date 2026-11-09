@@ -1,0 +1,40 @@
+name: 팝업 온라인 언급 매일 수집
+
+on:
+  schedule:
+    - cron: '30 19 * * *'   # 매일 04:30(KST). 블로그는 최신순 1,000건이 3~4일치라 매일 수집해야 누락이 없다
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: popup-mentions
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 의존성 설치
+        run: pip install requests==2.32.3
+      - name: 수집
+        env:
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+        run: python scripts/popups/collect_popup_mentions.py
+      - name: 결과 커밋(월요일만 사이트 갱신)
+        run: |
+          git config user.name "popup-mentions-bot"
+          git config user.email "popup-mentions-bot@users.noreply.github.com"
+          git add data/grades/popup_mentions.json scripts/popups/state/popup_mentions_state.json
+          if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
+          if [ "$(TZ=Asia/Seoul date +%u)" = "1" ]; then MSG="Popup mentions: weekly site update"; else MSG="Popup mentions: daily data [daily-data]"; fi
+          git commit -m "$MSG"
+          git pull --rebase origin main
+          git push

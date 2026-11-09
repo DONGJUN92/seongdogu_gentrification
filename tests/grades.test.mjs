@@ -108,3 +108,30 @@ test('Seoul-wide provider and licence uploads rebuild the bundled Seoul referenc
   assert.ok(Object.keys(up.dong['2026Q1']).every(c=>c.startsWith('11200')));
   const ul={dong:{},grid:{}};for(const f of ['LOCALDATA_072404_seoul_slim.jsonl','LOCALDATA_072405_seoul_slim.jsonl']){const rows=parseDelimited(readFileSync(new URL(f,RAWSEOUL),'utf8'));assert.equal(kindOf(rows),'license');ingest(rows,'license',ul,base);}
   const sl=seoulLicRefs(base,ul);for(const q of ['2023Q1','2024Q3','2026Q1','2026Q2'])for(const k of ['o','c','A','C','sdA','sdC'])assert.ok(Math.abs(sl[q][k]-base.seoulLic[q][k])<1e-6*Math.max(1,Math.abs(base.seoulLic[q][k])),`${q} ${k} ${sl[q][k]} vs ${base.seoulLic[q][k]}`);});
+import {readXlsx,parsePopupSheet,ingestPopups,mergePopups,popupStats,popupKey,popupAddrKey,popupLookup,partialGrade,gridDetail} from '../src/grades.js';
+const popups=JSON.parse(await readFile(new URL('../data/grades/popups.json',import.meta.url),'utf8'));
+const addrTable=JSON.parse(await readFile(new URL('../data/grades/address_grid.json',import.meta.url),'utf8'));
+test('popup statistics match the independent Python counts',()=>{const st=popupStats(mergePopups(popups,null));assert.equal(st.W,8);assert.equal(st.total,ref.popupStats.total);assert.equal(st.located,ref.popupStats.located);
+  assert.deepEqual(st.weekly.map(w=>[w.start,w.active,w.located]),ref.popupStats.weekly);assert.equal(Object.keys(st.grids).length,Object.keys(ref.popupStats.grids).length);
+  for(const [id,[d,n,b]] of Object.entries(ref.popupStats.grids)){const x=st.grids[id];assert.ok(Math.abs(x.d-d)<1e-5,id);assert.equal(x.n,n,id);assert.equal(x.b,b,id);}});
+test('popup address normalisation handles road names with numbers and unit suffixes',()=>{assert.equal(popupAddrKey('아차산로11가길 6'),'아차산로11가길 6');assert.equal(popupAddrKey('연무장길 57, 1층'),'연무장길 57');assert.equal(popupAddrKey('연무장15길 11(S팩토리)'),'연무장15길 11');assert.equal(popupAddrKey('아차산로 15-8'),'아차산로 15-8');assert.equal(popupAddrKey('서울숲 일대'),'');assert.equal(popupAddrKey('성수역 3번 출구'),'');});
+const RAWPOP=new URL('../../data/raw/popups_seongdong/2026-11-09/',import.meta.url);
+test('browser xlsx upload rebuilds the bundled popup items (local raw files only)',{skip:!existsSync(RAWPOP)},async()=>{const {readdirSync}=await import('node:fs');const up={dong:{},grid:{}};let weeks=0;
+  for(const f of readdirSync(RAWPOP).filter(n=>n.endsWith('.xlsx')).sort()){const b=readFileSync(new URL(encodeURIComponent(f),RAWPOP));const p=parsePopupSheet(await readXlsx(b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength)));assert.ok(p,f);ingestPopups(p,up,addrTable);weeks++;}
+  assert.equal(weeks,8);const got=up.popups.items,base=new Map(popups.items.map(x=>[x[0],x]));assert.equal(Object.keys(got).length,popups.items.length);
+  const wk=Object.values(up.popups.weeks).sort((a,b)=>a.start<b.start?-1:1);assert.deepEqual(wk.map(w=>[w.start,w.end,w.listed]),popups.meta.weeks.map(w=>[w.start,w.end,w.listed]));
+  let same=0;for(const [k,x] of Object.entries(got)){const b0=base.get(k);assert.ok(b0,k);assert.equal(x[2],b0[2]);assert.equal(x[3],b0[3]);if(x[1]===b0[1])same++;}
+  assert.ok(same/Object.keys(got).length>=0.95,`grid agreement ${same}`);});
+test('partial grades are decided only when the missing items cannot change the composite',()=>{assert.equal(partialGrade(['활성','활성','활성',null]),'활성');assert.equal(partialGrade(['위험','위험','위험',null]),'위험');assert.equal(partialGrade(['위험','위험','활성',null]),null);assert.equal(partialGrade(['쇠퇴',null,null,null]),null);});
+test('grid detail explains graded, partial and excluded cells for 2026Q1',()=>{const gs=buildModel(structuredClone({...base,popups}),{dong:{},grid:{}},data),q='2026Q1',P=Object.values(gs.gridP[q]);assert.equal(P.length,35);assert.equal(P.filter(x=>x.det).length,6);assert.ok(P.filter(x=>x.det).every(x=>x.det==='활성'));
+  const id=Object.keys(gs.gridC[q])[0],d=gridDetail(gs,data,q,id);assert.ok(d.comp);assert.equal(d.items.length,4);d.items.forEach(it=>{assert.ok(it.grade);assert.ok(it.rows.length>0);it.rows.flat().forEach(c=>assert.ok(!/NaN|undefined/.test(c),c));});
+  const pid=Object.keys(gs.gridP[q])[0],pd=gridDetail(gs,data,q,pid);assert.ok(pd.items.some(it=>!it.grade&&it.reason));
+  const ex=[...gs.excluded][0];assert.equal(gridDetail(gs,data,q,ex).excluded,true);
+  const empty=data.grids.find(g=>!gs.excluded.has(g.id)&&!gs.gridC[q]?.[g.id]&&!gs.gridP[q]?.[g.id]);const ed=gridDetail(gs,data,q,empty.id);assert.ok(ed.items.every(it=>!it.grade&&it.reason));});
+import {popupMentionView} from '../src/grades.js';
+test('popup mention view uses the baseline until four collected weeks, then the latest 13 weeks',()=>{
+  const week=(n,g)=>({docs:n,blog:n,news:0,located:n,grids:g}),meta={started:'2026-01-01',updated:'2026-06-01',gaps:[]},baseline={from:'2025-12-01',to:'2026-08-31',docs:9,located:3,grids:{a:3}};
+  const few={meta,baseline,weeks:{'2026-01-05':week(1,{b:1})}};const v=popupMentionView(few);assert.equal(v.source,'baseline');assert.deepEqual(v.grids,{a:3});assert.equal(v.docs,9);
+  const weeks={};for(let i=1;i<=15;i++)weeks[`2026-02-${String(i).padStart(2,'0')}`]=week(2,{b:1,c:1});const d=popupMentionView({meta,baseline,weeks});assert.equal(d.source,'daily');assert.equal(d.weeks,13);assert.equal(d.docs,26);assert.deepEqual(d.grids,{b:13,c:13});assert.equal(d.from,'2026-02-03');
+  assert.equal(popupMentionView(null),null);assert.equal(popupMentionView({meta,weeks:{}}),null);});
+

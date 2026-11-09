@@ -46,3 +46,16 @@
 .upload-guide summary{cursor:pointer;font-weight:650;color:var(--brand)}
 .upload-guide ol{margin:10px 0 0 18px;padding:0;display:grid;gap:6px}
 .upload-guide code{font-size:11px;background:var(--soft);padding:1px 5px;border-radius:4px}
+.grade-map-wrap{position:relative}
+.grade-cell{cursor:pointer}
+.grade-cell:hover,.grade-cell:focus-visible{stroke:#0b0b0b;stroke-width:1.6;outline:none}
+.grade-cell.sel{stroke:#0b0b0b;stroke-width:3}
+.grid-pop{position:absolute;left:0;top:0;z-index:5;width:min(430px,94%);max-height:600px;overflow:auto;background:#fff;border:1px solid #d9d9d4;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:14px 16px}
+.grid-pop h3{margin:0 26px 6px 0;font-size:15px}
+.grid-pop-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px;font-size:12px}
+.grid-pop-close{position:absolute;right:8px;top:6px;font-size:18px;line-height:1;background:none;border:0}
+.pop-table{font-size:12px;width:100%}.pop-table td,.pop-table th{padding:4px 6px}.pop-item td{background:#f4f4ef}
+.grid-target-list{max-height:280px;overflow:auto}
+.basis-sub{margin:14px 0 6px;font-size:14px}
+@media(max-width:720px){.grid-pop{position:static;width:100%;max-height:none;margin-top:10px}}
+
