@@ -1,12 +1,12 @@
-name: 웹 언급 분기 수집
+name: 웹 언급 매일 수집
 
 on:
   schedule:
-    - cron: '0 18 10 * *'   # 매월 11일 03:00(KST). 직전 분기가 없으면 수집, 있으면 점검 날짜만 기록(60일 무활동 시 예약 실행이 꺼지는 것 방지)
+    - cron: '0 18 * * *'   # 매일 03:00(KST). 새 글을 진행 분기에 쌓고, 분기가 끝나고 10일이 지나면 지도에 반영한다
   workflow_dispatch:
     inputs:
       quarter:
-        description: '수집할 분기(예: 2026Q3). 비우면 직전 분기'
+        description: '끝난 분기를 일괄 수집할 때만 입력(예: 2026Q3). 비우면 매일 수집'
         required: false
 
 permissions:
@@ -35,13 +35,15 @@ jobs:
           QUARTER: ${{ github.event.inputs.quarter }}
         run: |
           if [ -n "$QUARTER" ]; then python scripts/web_mentions/collect_web_mentions.py --quarter "$QUARTER"
-          else python scripts/web_mentions/collect_web_mentions.py --if-missing; fi
-      - name: 결과 커밋(변경이 있을 때만)
+          else python scripts/web_mentions/collect_web_mentions.py; fi
+      - name: 결과 커밋(지도가 바뀔 때만 사이트 갱신)
         run: |
           git config user.name "web-mentions-bot"
           git config user.email "web-mentions-bot@users.noreply.github.com"
           git add data/grades/web_mentions.json data/grades/web_mentions_history.json data/grades/web_mentions_status.json data/release-manifest.json
+          if [ -f scripts/web_mentions/state/web_mentions_state.json ]; then git add scripts/web_mentions/state/web_mentions_state.json; fi
           if git diff --cached --quiet; then echo "변경 없음"; exit 0; fi
-          git commit -m "Web mentions: quarterly collection or monthly check"
+          if git diff --cached --quiet -- data/grades/web_mentions_history.json; then MSG="Web mentions: daily data [daily-data]"; else MSG="Web mentions: quarter completed"; fi
+          git commit -m "$MSG"
           git pull --rebase origin main
           git push
