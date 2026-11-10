@@ -1,11 +1,12 @@
 import { NAV, SOURCES, CHECKS, EVIDENCE_GAPS, escapeHtml as h, findParcels, sanitizeNote, defaultNote, markdownReport } from './core.js';
 import { icon } from './icons.js';
-import { gradesPage, buildModel, loadUploads, saveUploads, handleFiles, gradeSummary, dongMap, badge, qLabel, latestQuarter } from './grades.js';
+import { gradesPage, buildModel, loadUploads, saveUploads, handleFiles, gradeSummary, dongMap, badge, qLabel, latestQuarter, gridCard } from './grades.js';
+import { placeGradeMap, updateGradeMap } from './gradeMap.js';
 
 const $ = s => document.querySelector(s);
 const STORE = 'seongsu-observatory-note-v1';
 const AS_OF = '2026.11.03';
-const state = { data: null, parcels: [], requests: new Set(), grades: null, gradeBase: null, gUploads: loadUploads(), gLayer: 'GRIDC', gQuarter: '', gDong: '', gGrid: '', gIssued: null, page: 'overview', parcelQuery: '', street: 'all', parcelLimit: 12, note: defaultNote(), menu: false };
+const state = { data: null, parcels: [], requests: new Set(), grades: null, gradeBase: null, gUploads: loadUploads(), gLayer: 'GRIDC', gQuarter: '', gDong: '', gGrid: '', gPoints: true, mapData: null, gIssued: null, page: 'overview', parcelQuery: '', street: 'all', parcelLimit: 12, note: defaultNote(), menu: false };
 let toastTimer, storageOK = true;
 const sourceLink = id => { const s = SOURCES.find(x => x.id === id); return `<a class="source-link" href="${s.url}" target="_blank" rel="noopener noreferrer">${h(s.label)}${icon('external')}</a>`; };
 function toast(message) { $('#toast').textContent = message; $('#toast').classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').classList.remove('show'), 2700); }
@@ -71,13 +72,24 @@ function render() {
   const pages = { overview, grades: () => gradesPage(state, state.data), policy: policyPage, evidence: evidencePage, review: reviewPage };
   $('#app').innerHTML = shell(pages[state.page]());
   document.title = `${NAV.find(n => n[0] === state.page)?.[1]} · 성동구 상권 모니터링`;
-  placeGridPop();
+  syncGradeMap();
   if (id && document.getElementById(id)) { const el = document.getElementById(id); el.focus({ preventScroll: true }); if (pos != null && el.setSelectionRange) el.setSelectionRange(pos, pos); }
 }
-function placeGridPop() {
-  const pop = $('.grid-pop'), cell = $('.grade-cell.sel'), wrap = $('.grade-map-wrap'); if (!pop || !cell || !wrap || matchMedia('(max-width:720px)').matches) return;
-  const w = wrap.getBoundingClientRect(), c = cell.getBoundingClientRect(), W = pop.offsetWidth, H = pop.offsetHeight; let x = c.right - w.left + 10; if (x + W > w.width) x = c.left - w.left - W - 10; if (x < 0) x = Math.max(0, (w.width - W) / 2);
-  pop.style.left = `${x}px`; pop.style.top = `${Math.max(0, Math.min(c.top - w.top - 30, Math.max(0, w.height - H)))}px`;
+const mapHandlers = { grid: id => { state.gGrid = id; render(); }, dong: code => { state.gDong = code; render(); }, closeGrid: () => { state.gGrid = ''; render(); } };
+function syncGradeMap() {
+  const slot = $('#grade-map-slot'), gs = state.grades; if (!slot || !gs) return;
+  if (!state.mapData) { loadMapData(); return; }
+  placeGradeMap(slot, state.mapData, mapHandlers);
+  const q = gs.quarters.includes(state.gQuarter) ? state.gQuarter : latestQuarter(gs);
+  updateGradeMap({ gs, data: state.data, layer: state.gLayer, q, sel: state.gGrid, focus: state.gDong, points: state.gPoints, coords: state.mapData.points, card: id => gridCard(gs, state.data, q, id) });
+}
+async function loadMapData() {
+  if (state.requests.has('map')) return; state.requests.add('map');
+  try {
+    const [geo, pts, config] = await Promise.all(['/data/grades/grid_geo.json', '/data/grades/license_points.json', '/data/map-config.json'].map(u => fetch(u).then(r => (r.ok ? r.json() : null)).catch(() => null)));
+    if (!geo || !window.L) throw Error('map');
+    state.mapData = { geo, points: pts?.points || {}, config }; render();
+  } catch { const s = $('#grade-map-slot'); if (s) s.innerHTML = '<p class="small-copy map-loading">지도를 불러오지 못했습니다. 새로고침해 주십시오.</p>'; toast('지도 자료를 불러오지 못했습니다.'); } finally { state.requests.delete('map'); }
 }
 async function loadGrades() {
   if (state.requests.has('grades')) return; state.requests.add('grades');
@@ -117,6 +129,8 @@ document.addEventListener('change', e => {
   if (!state.data) return; const t = e.target;
   if (t.id === 'g-quarter') { state.gQuarter = t.value; render(); return; }
   if (t.id === 'g-layer') { state.gLayer = t.value; render(); return; }
+  if (t.id === 'g-points') { state.gPoints = t.checked; render(); return; }
+  if (t.id === 'g-grid-search') { const v = t.value.replace(/\s/g, ''), id = /^\d{8}$/.test(v) ? `다사${v}` : v; if (!v) return; if (state.data.grids.some(g => g.id === id)) { state.gGrid = id; render(); } else toast('성동구 격자 번호가 아닙니다. 예: 60754925'); return; }
   if (t.id === 'g-files' && t.files.length) { handleFiles([...t.files], state.gUploads, state.gradeBase).then(up => { state.gUploads = up; if (!saveUploads(up)) toast('브라우저에 저장할 수 없습니다. 등록 자료를 내보내 보관하십시오.'); else toast('자료를 등록했습니다.'); refreshGrades(); }); return; }
   if (t.id === 'g-import' && t.files.length) { t.files[0].text().then(x => { const up = JSON.parse(x); if (!up || typeof up.dong !== 'object') throw Error('format'); state.gUploads = up; saveUploads(up); toast('등록 자료를 불러왔습니다.'); refreshGrades(); }).catch(() => toast('불러오지 못했습니다. 내보내기로 만든 JSON 파일을 선택하십시오.')); return; }
   if (t.id === 'street') { state.street = t.value; state.parcelLimit = 12; render(); }

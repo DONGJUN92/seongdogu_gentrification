@@ -46,16 +46,29 @@
 .upload-guide summary{cursor:pointer;font-weight:650;color:var(--brand)}
 .upload-guide ol{margin:10px 0 0 18px;padding:0;display:grid;gap:6px}
 .upload-guide code{font-size:11px;background:var(--soft);padding:1px 5px;border-radius:4px}
-.grade-map-wrap{position:relative}
-.grade-cell{cursor:pointer}
-.grade-cell:hover,.grade-cell:focus-visible{stroke:#0b0b0b;stroke-width:1.6;outline:none}
-.grade-cell.sel{stroke:#0b0b0b;stroke-width:3}
-.grid-pop{position:absolute;left:0;top:0;z-index:5;width:min(430px,94%);max-height:600px;overflow:auto;background:#fff;border:1px solid #d9d9d4;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:14px 16px}
+.grid-pop{position:relative}
 .grid-pop h3{margin:0 26px 6px 0;font-size:15px}
 .grid-pop-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px;font-size:12px}
 .grid-pop-close{position:absolute;right:8px;top:6px;font-size:18px;line-height:1;background:none;border:0}
-.pop-table{font-size:12px;width:100%}.pop-table td,.pop-table th{padding:4px 6px}.pop-item td{background:#f4f4ef}
+.pop-table{font-size:12px;width:100%}.pop-table td,.pop-table th{padding:4px 6px}.pop-item th{background:#f4f4ef;font-weight:500;white-space:normal}
 .grid-target-list{max-height:280px;overflow:auto}
 .basis-sub{margin:14px 0 6px;font-size:14px}
-@media(max-width:720px){.grid-pop{position:static;width:100%;max-height:none;margin-top:10px}}
-
+.grade-map-host{height:680px;border-radius:12px;overflow:hidden;background:#e9ece4;position:relative;z-index:0}
+.map-loading{padding:18px}
+.grade-lbl-wrap{background:none;border:0}
+.grade-lbl{display:block;width:max-content;transform:translate(-50%,-50%);text-align:center;font-size:12px;font-weight:700;line-height:1.2;color:#0b0b0b;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 2px #fff,0 0 2px #fff}
+.grade-tip{font-size:12px;width:max-content;max-width:340px;white-space:normal}
+.point-toggle{display:flex;align-items:center;gap:6px;font-size:12px;padding-bottom:8px;white-space:nowrap}
+.point-legend{margin-top:10px}
+.point-legend .pt{display:inline-block;width:10px;height:10px;border-radius:50%;margin:0 4px 0 8px;vertical-align:-1px}.point-legend .pt:first-child{margin-left:0}
+.pt.o{background:#1f6fd1}.pt.c{background:#fff;border:2px solid #14213d}
+.grade-pop .leaflet-popup-content-wrapper{border-radius:10px;padding:0}
+.grade-pop .leaflet-popup-content{margin:14px 16px;font:inherit;line-height:1.45}
+.grade-pop .leaflet-popup-content p{margin:6px 0 0}
+.grade-pop .grid-pop-close{display:none}
+.grade-pop .grid-pop h3{margin:2px 26px 6px 0}
+.pop-groups{columns:2;column-gap:18px}
+.grade-pop.one .pop-groups{columns:1}
+.pop-group{break-inside:avoid;margin-bottom:8px}
+.grid-sheet{display:none}
+@media(max-width:720px){.grade-map-host{height:420px}.grid-sheet{display:block;position:fixed;left:0;right:0;bottom:0;z-index:30;max-height:58vh;overflow:auto;background:#fff;border-radius:14px 14px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.2);padding:14px 16px}.pop-groups{columns:1}}

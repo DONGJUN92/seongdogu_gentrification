@@ -42,6 +42,14 @@
     "data/grades/address_grid.json": {
       "sha256": "04f52cdc45bc200c0e16f6fa9c072441d099c507a25ac1059e8c68519cb3cad8",
       "bytes": 71616
+    },
+    "data/grades/grid_geo.json": {
+      "bytes": 72009,
+      "sha256": "d8c82bb857c81397683cb16742176d61e0a16df46ababb16bd17fa07e03db7b2"
+    },
+    "data/grades/license_points.json": {
+      "bytes": 184663,
+      "sha256": "bd2f45899de5193950fa1dca33670f33257596a4397895860e425b42f09db872"
     }
   }
 }

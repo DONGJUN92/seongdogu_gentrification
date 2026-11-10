@@ -135,3 +135,10 @@ test('popup mention view uses the baseline until four collected weeks, then the 
   const weeks={};for(let i=1;i<=15;i++)weeks[`2026-02-${String(i).padStart(2,'0')}`]=week(2,{b:1,c:1});const d=popupMentionView({meta,baseline,weeks});assert.equal(d.source,'daily');assert.equal(d.weeks,13);assert.equal(d.docs,26);assert.deepEqual(d.grids,{b:13,c:13});assert.equal(d.from,'2026-02-03');
   assert.equal(popupMentionView(null),null);assert.equal(popupMentionView({meta,weeks:{}}),null);});
 
+
+import {licensePoints,gridStyle,licenseCounts,latestQuarter} from '../src/grades.js';
+const geo=JSON.parse(await readFile(new URL('../data/grades/grid_geo.json',import.meta.url),'utf8'));
+const ptsFile=JSON.parse(await readFile(new URL('../data/grades/license_points.json',import.meta.url),'utf8'));
+test('map geometry covers every grid and dong inside Seongdong coordinates',()=>{assert.deepEqual(Object.keys(geo.grids).sort(),data.grids.map(g=>g.id).sort());assert.deepEqual(Object.keys(geo.dongs).sort(),data.dongs.map(d=>d.code).sort());for(const p of Object.values(geo.grids))for(const poly of p)for(const r of poly)for(const [lon,lat] of r)assert.ok(lon>126.9&&lon<127.2&&lat>37.5&&lat<37.65);});
+test('map points equal the opening and closing counts of every graded grid in every quarter',()=>{const gs=buildModel(base,null,data),qs=gs.quarters.filter(q=>q>='2023Q1'),cnt=licenseCounts(gs.lic,qs);for(const q of qs){const by={};for(const p of licensePoints(gs,q,ptsFile.points))(by[p.id]||={O:0,C:0})[p.kind]++;for(const [id,c] of Object.entries(cnt[q])){if(gs.excluded.has(id))continue;assert.equal(by[id]?.O||0,c.O,`${q} ${id} O`);assert.equal(by[id]?.C||0,c.C,`${q} ${id} C`);}}});
+test('map cell colours keep the composite grade counts',()=>{const gs=buildModel(base,null,data),q=latestQuarter(gs),n={};for(const g of data.grids){const s=gridStyle(gs,'GRIDC',q,g);assert.ok(s.title.includes(g.id));const x=gs.gridC[q]?.[g.id];if(x&&!x.thin){assert.equal(s.style.fillOpacity,.6);n[x.GC]=(n[x.GC]||0)+1;}}assert.deepEqual(n,{위험:1,활성:37,쇠퇴:30});for(const l of ['GRID','WEB','POPUP','POPWEB'])for(const g of data.grids)assert.ok(gridStyle(gs,l,q,g).style);});
