@@ -50,6 +50,10 @@
     "data/grades/license_points.json": {
       "bytes": 184663,
       "sha256": "bd2f45899de5193950fa1dca33670f33257596a4397895860e425b42f09db872"
+    },
+    "data/grades/popup_mention_periods.json": {
+      "bytes": 999,
+      "sha256": "a5c0c886c79743c2c61048c00b19afaccf55fdc5d62bc542e8c35c1f8e2a63b5"
     }
   }
 }

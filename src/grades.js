@@ -4,7 +4,7 @@ import { icon } from './icons.js';
 
 export const CL = ['쇠퇴', '활성', '위험'];
 export const GRADE = { 활성: { color: '#0ca30c', ink: '#ffffff' }, 쇠퇴: { color: '#fab219', ink: '#0b0b0b' }, 위험: { color: '#d03b3b', ink: '#ffffff' }, none: { color: '#e1e0d9', ink: '#52514e' } };
-export const COMPONENTS = { COMP: '종합', C1: '임대료·매출', C2: '개·폐업', C3: '영업기간', C4: '업종 변화', C6: '온라인 관심도(참고)' };
+export const COMPONENTS = { COMP: '종합', C1: '임대료·매출', C2: '개·폐업', C3: '영업기간', C4: '업종 변화' };
 export const RULES = {
   C1: '소속 행정동의 1층 환산임대료 상승률이 서울 소규모 상가 임대가격지수(한국부동산원) 상승률보다 높고, 임대료 상승률과 외식업 점포당 매출 증가율의 차이가 서울의 같은 차이보다 크면 위험으로 봅니다. 점포당 매출은 서울 기준점과 같은 방식(외식 매출 ÷ 점포 자료의 외식 점포 수)으로 계산합니다. 임대료 상승률이 서울 이하이면서 매출 증가율이 서울 행정동 중앙값보다 낮으면 쇠퇴, 그 밖에는 활성입니다. 전년 같은 분기와 비교합니다.',
   C2: '개업률과 폐업률이 모두 같은 분기 서울 행정동 중앙값보다 높을 확률이 0.8을 넘으면 위험(점포 교체 과다), 순폐업률(폐업률 − 개업률)이 서울 행정동 중앙값보다 높을 확률이 0.8을 넘으면 쇠퇴, 그 밖에는 활성으로 봅니다. 분기 개·폐업 수가 적어 생기는 우연 변동을 거르기 위해 격자와 같은 경험적 베이즈 추정(Clayton·Kaldor 1987)과 사후확률 0.8 기준(Richardson 외 2004)을 씁니다. 어느 쪽으로도 0.8을 넘지 않으면 근거 부족으로 표시합니다.',
@@ -13,10 +13,9 @@ export const RULES = {
   COMP: '4개 항목 중 위험이 3개 이상이면 위험, 쇠퇴가 2개 이상이면 쇠퇴, 그 밖에는 활성으로 봅니다. 각 항목은 서울 값을 기준점으로 비교합니다(Ding 외 2016, 서울시 상권변화지표).',
   GRID: '격자 안 카드 외식 매출 증가율과 소속 행정동의 임대료 상승률을 행정동 임대료·매출 항목과 같은 방식으로 서울 기준점(부동산원 서울 임대가격지수, 서울 행정동 외식 매출 증가율 중앙값)과 비교합니다. 분기 외식 카드 결제가 30건 미만(NCHS 정밀도 기준)이거나, 3개월 중 빠진 달이 있거나, 전년 같은 분기 자료가 없으면 자료 부족으로 표시합니다. 성동구 면적이 50% 이하인 격자 40곳은 등급을 내지 않고, 카드 자료는 중심이 성동구 안에 있는 50m 칸만 집계합니다(경계 보정).',
   GRIDC: '격자별 임대료·카드매출, 개·폐업(외식업 인허가, 최근 1년), 영업기간(외식업 인허가), 업종 변화(전 업종 카드) 중 위험이 3개 이상이면 위험, 쇠퇴가 2개 이상이면 쇠퇴로 봅니다. 기준점은 모두 서울 값입니다. 격자마다 업소 수가 적어 개·폐업률과 평균 영업기간은 경험적 베이즈로 추정하고(Clayton·Kaldor 1987), 서울보다 높거나 낮을 확률이 0.8을 넘을 때만 위험·쇠퇴로 봅니다(Richardson 외 2004). 어느 쪽으로도 0.8을 넘지 않아 활성이 된 격자는 근거 부족으로 옅게 표시합니다(이 방식으로 산출 격자가 63곳에서 157곳으로 늘었습니다). 격자를 누르면 값과 서울 기준, 항목별 판정을 볼 수 있습니다. 일부 항목만 있는 격자는 종합을 내지 않고 항목만 보여 줍니다. 성동구 면적이 50% 이하인 격자 40곳은 등급을 내지 않고, 카드 자료는 중심이 성동구 안에 있는 50m 칸만 집계합니다(경계 보정).',
-  POPUP: '성동구가 인스타그램·블로그 등을 통해 주간 단위로 집계한 성수동 팝업 현황을 도로명주소로 250m 격자에 배정한 값입니다. 색은 관측 주마다 운영 중인 팝업 수의 평균이고, 격자를 누르면 팝업 건수와 건물 수(같은 건물의 반복 사용)를 보여 줍니다. 종합 등급에 넣지 않는 참고 신호입니다.',
-  POPWEB: '네이버 블로그·뉴스를 매일 검색해(성수 팝업, 성수동 팝업, 성수 팝업스토어, 성수동 팝업스토어) 제목에 팝업과 성수 지역어가 있는 글을 모으고, 글에 도로명주소가 있으면 250m 격자에 배정해 센 값입니다. 팝업 수가 아니라 온라인 언급량이며 종합 등급에 넣지 않는 참고 신호입니다.',
-  C6: '네이버 검색어 트렌드(법정동·도로명과 맛집·카페·쇼핑·팝업·나들이를 합한 검색어)의 전년 같은 분기 대비 변화가 0보다 크고 같은 분기 성동구 중앙값보다 크면 위험(관심 급증), 0보다 작고 중앙값보다 작으면 쇠퇴, 그 밖에는 활성으로 봅니다. 종합 등급에 넣지 않는 참고 항목입니다.',
-  WEB: '네이버 블로그 게시글 가운데 성동구 외식업소 상호와 연결된 글을 격자별로 센 값입니다(최근 4개 분기). 사람 검수 없이 자동 규칙(지명이거나 2글자 이하인 상호, 업소 여러 곳에 연결된 글 제외)만 적용했습니다. 최근 글이 많이 잡히는 수집 시점 편향은 분기 층화 추출로 맞췄습니다(분기마다 같은 건수를 뽑았을 때의 기대 건수). 매일 자동으로 수집해 분기별로 쌓고 지도에는 완료된 최근 4개 분기만 씁니다. 광고성 글은 걸러내지 않았습니다.',
+  POPUP: '성동구가 인스타그램·블로그 등을 통해 주간 단위로 집계한 성수동 팝업 현황을 도로명주소로 250m 격자에 배정한 값입니다. 최근 관측 8개 주를 앞뒤 4개 주로 나눕니다. 최근 구간과 직전 구간을 비교해 그 격자의 건수가 성수동 전체보다 더 늘었을 확률과 평균보다 많을 확률을 구합니다. 두 확률이 모두 0.8을 넘으면 위험, 더 줄었을 확률이 0.8을 넘으면 쇠퇴, 그 밖에는 활성이며 어느 쪽도 0.8을 넘지 않으면 활성(근거 부족)으로 표시합니다. 작은 건수는 경험적 베이즈로 보정합니다. 종합 등급에 넣지 않는 참고 신호입니다.',
+  POPWEB: '네이버 블로그·뉴스를 매일 검색해(성수 팝업, 성수동 팝업, 성수 팝업스토어, 성수동 팝업스토어) 제목에 팝업과 성수 지역어가 있는 글을 모으고, 글에 도로명주소가 있으면 250m 격자에 배정해 센 값입니다. 팝업 수가 아니라 온라인 언급량입니다. 2025년 12월~2026년 4월과 2026년 5~8월을 비교하며, 매일 수집이 26주 쌓이면 최근 13주와 직전 13주로 바뀝니다. 최근 구간과 직전 구간을 비교해 그 격자의 건수가 성수동 전체보다 더 늘었을 확률과 평균보다 많을 확률을 구합니다. 두 확률이 모두 0.8을 넘으면 위험, 더 줄었을 확률이 0.8을 넘으면 쇠퇴, 그 밖에는 활성이며 어느 쪽도 0.8을 넘지 않으면 활성(근거 부족)으로 표시합니다. 작은 건수는 경험적 베이즈로 보정합니다. 종합 등급에 넣지 않는 참고 신호입니다.',
+  WEB: '네이버 블로그 게시글 가운데 성동구 외식업소 상호와 연결된 글을 격자별로 센 값입니다(최근 4개 분기). 사람 검수 없이 자동 규칙(지명이거나 2글자 이하인 상호, 업소 여러 곳에 연결된 글 제외)만 적용했습니다. 최근 글이 많이 잡히는 수집 시점 편향은 분기 층화 추출로 맞췄습니다(분기마다 같은 건수를 뽑았을 때의 기대 건수). 매일 자동으로 수집해 분기별로 쌓고 지도에는 완료된 최근 4개 분기만 씁니다. 광고성 글은 걸러내지 않았습니다. 최근 4개 분기와 직전 4개 분기를 비교합니다. 최근 구간과 직전 구간을 비교해 그 격자의 건수가 성동구 전체보다 더 늘었을 확률과 평균보다 많을 확률을 구합니다. 두 확률이 모두 0.8을 넘으면 위험, 더 줄었을 확률이 0.8을 넘으면 쇠퇴, 그 밖에는 활성이며 어느 쪽도 0.8을 넘지 않으면 활성(근거 부족)으로 표시합니다. 작은 건수는 경험적 베이즈로 보정합니다. 종합 등급에 넣지 않는 참고 신호입니다.',
 };
 export const VALIDATION = {
   COMP: '다음 분기 등급 적중률 78.5%로 현재 등급을 그대로 둘 때(79.1%)와 비슷합니다(무작위 배정 시 65.0%). 변별력(AUC)은 0.739로 현재 등급 유지(0.691)보다 높고 통계적으로 유의합니다(2023년 4분기~2026년 1분기, 163건). 쇠퇴 등급은 이후 1년 점포 감소를 구분합니다(AUC 0.728). 위험은 2023년 1분기~2026년 1분기 212건 중 17건입니다.',
@@ -26,10 +25,9 @@ export const VALIDATION = {
   C4: '다음 분기 등급 적중률 77.1%(현재 등급을 그대로 둘 때 80.6%, 무작위 배정 시 44.2%), 통계적으로 유의합니다.',
   GRID: '다음 분기 등급 적중률 66.5%(현재 등급을 그대로 둘 때 67.5%, 무작위 배정 시 36.1%), 변별력(AUC) 0.807로 통계적으로 유의합니다(경계 보정 후 2023년 3분기~2026년 1분기, 1,768건).',
   GRIDC: '다음 분기 등급 적중률 86.9%(현재 등급을 그대로 둘 때 85.2%, 무작위 배정 시 71.8%), 변별력(AUC) 0.842로 통계적으로 유의하며 같은 행정동 안에서도 격자 간 차이를 구분합니다(1,684건). 위험 격자는 드물어 2023년 1분기~2026년 1분기 2,021건 중 11건입니다. 개·폐업 판정의 44%, 영업기간 판정의 54%는 근거 부족으로 활성입니다.',
-  C6: '다음 분기 등급 적중률 59.4%(현재 등급을 그대로 둘 때 57.1%, 무작위 배정 시 48.3%). 다른 4개 항목·종합 등급과 거의 일치하지 않고(일치도 kappa −0.06~0.05) 위험 비중이 약 37%로 높아, 이 항목만으로 점검 대상을 정하지 않습니다. 분기 자료 등록으로 갱신되지 않으며 연구진이 검색어 트렌드를 다시 받아 갱신합니다.',
-  POPWEB: '등급·예측에 쓰지 않는 참고 지도입니다. 2025년 12월~2026년 8월 표본에서 구청 팝업 건수와 격자별 순위 상관이 0.85였습니다. 구청 목록도 온라인 자료 기반이라 실제 정확도를 뜻하지는 않습니다. 글에 주소가 있어야 격자에 배정되므로 위치가 잡히는 글은 약 12%이고, 시간 변화를 따라가는지는 아직 확인하지 못했습니다.',
-  POPUP: '등급·예측에 쓰지 않는 참고 지도입니다. 성수동 4개 행정동만 다루고, 현재 제공된 주간 현황 표본으로 계산하므로 분기 추세로 해석하지 않습니다. 현장 조사 때 팝업이 몰린 곳을 확인하는 용도로 씁니다.',
-  WEB: '등급·예측에 쓰지 않는 참고 지도입니다. 과거 시점 검증이 불가능한 자료여서 상권 변화 판단의 근거로 쓰지 않고, 현장 조사 때 온라인 노출이 많은 곳을 확인하는 용도로만 씁니다.',
+  POPWEB: '등급 기준의 예측력은 검증하지 못했습니다(앞뒤 구간 비교가 1회뿐입니다). 2025년 12월~2026년 8월 표본에서 구청 팝업 건수와 격자별 순위 상관이 0.85였습니다. 구청 목록도 온라인 자료 기반이라 실제 정확도를 뜻하지는 않습니다. 글에 주소가 있어야 격자에 배정되므로 위치가 잡히는 글은 약 12%이고, 시간 변화를 따라가는지는 아직 확인하지 못했습니다.',
+  POPUP: '팝업이 다음 분기 4개 지표에 주는 영향은 회귀에서 확인되지 않았습니다(8개 주 표본, 성수동 격자 46~61곳). 성수동만 다루고, 띄엄띄엄 관측한 8개 주를 나눠 비교하므로 계절 효과와 구분하지 못합니다. 현장 조사 때 팝업이 몰린 곳을 확인하는 용도로 씁니다.',
+  WEB: '이 신호를 종합 등급 예측에 더해도 개선되지 않았습니다(자동 규칙 기준 AUC 격자 0.878→0.877, 행정동 0.705→0.711, 유의하지 않음). 구 전체와 비교한 상대 변화이고, 과거 시점 검증이 불가능한 자료여서 상권 변화 판단의 근거로 쓰지 않고, 현장 조사 때 온라인 노출이 많은 곳을 확인하는 용도로만 씁니다.',
 };
 export const GUIDE = [
   ['위험 2분기 연속', '정밀 진단', '현장 조사(공실·업종·임대 동향)와 상인·임대인 면담을 실시하고 위험 항목별 조치를 검토합니다. 지속가능발전구역·상생협약 검토 자료로 활용합니다.'],
@@ -47,6 +45,7 @@ export const CRITERIA_BASIS = [
 export const CRITERIA_TABLE = [
   ['항목 구성', '임대료·매출, 개·폐업, 영업기간, 업종 변화', '선행연구', 'Davidson·Lees(2005)의 정의 요소를 상권 자료로 옮김. 점포 교체(churn)와 소규모 점포 감소는 상권 젠트리피케이션 지표(Meltzer·Capperis 2016, Chapple·Loukaitou-Sideris)', '등급은 내몰림을 직접 측정하지 않음'],
   ['비교 기준점', '서울 행정동 중앙값, 부동산원 서울 임대가격지수', '선행연구', '지역을 도시 전체 값과 비교(Bates 2013, Ding 외 2016, Freeman 2005)', '중앙값을 평균으로 바꿔도 항목 등급 95~99% 동일'],
+  ['참고 신호 3종', '많을 확률·증가 확률 > 0.8 위험, 감소 확률 > 0.8 쇠퇴', '이 자료의 분포 + 기존 사후확률 규칙', '팝업·온라인 언급의 임계값을 제시한 선행연구는 찾지 못함. Yelp 활동이 주택가격 변화에 앞선다는 결과(Glaeser·Kim·Luca 2018)를 방향 근거로 쓰고, 격자 기준과 같은 경험적 베이즈 0.8 규칙(프로토콜 52)을 적용', '구 또는 성수동 전체 대비 상대 변화. 예측력 미검증, 종합 등급에 넣지 않음'],
   ['위험', '4개 항목 중 3개 이상', '선행연구 + 사전 시험', 'Bates(2013)는 지표 4개 중 3개 이상이면 취약 지역으로 판정. 이 연구는 2개·3개를 사전 비교(위험 동 비중 52.9% → 14.7%)', 'Bates는 주거 지역 기준. 위험 등급과 이후 1년 폐업률의 구분력 AUC 0.578'],
   ['쇠퇴', '4개 항목 중 2개 이상', '관례(부분 선례)', 'Bates(2013)는 지표 4개 중 특정 2개 조합도 인정, 텍사스대 오스틴 지도는 4개 중 2개 사용', '쇠퇴 등급과 이후 1년 점포 감소의 구분력 AUC 0.728. 1·3개보다 낫다는 근거는 없음'],
   ['개·폐업·영업기간 판정', '서울과 다를 확률 0.8 초과', '선행연구', '소지역 경험적 베이즈(Clayton·Kaldor 1987, Marshall 1991), 0.8 판정(Richardson 외 2004)', '행정동 개·폐업 판정이 맞을 확률 0.66 → 0.83. 0.8은 공간 평활 모형에서 검토된 값'],
@@ -569,11 +568,8 @@ export function saveUploads(up) { try { localStorage.setItem(UPLOAD_KEY, JSON.st
 // ---------- 화면 ----------
 export const qLabel = q => (q ? `${q.slice(0, 4)}년 ${q.slice(5)}분기` : '');
 const qShort = q => `${q.slice(2, 4)}.${q.slice(5)}분기`;
-const LAYER_NAMES = { GRIDC: '250m 격자 종합', GRID: '250m 격자 임대료·카드매출', COMP: '행정동 종합', C1: '행정동 임대료·매출', C2: '행정동 개·폐업', C3: '행정동 영업기간', C4: '행정동 업종 변화', POPUP: '250m 격자 팝업 압력(참고)', POPWEB: '250m 격자 팝업 온라인 언급(참고)', WEB: '250m 격자 온라인 언급(참고)', C6: '행정동 온라인 관심도(참고)' };
+const LAYER_NAMES = { GRIDC: '250m 격자 종합', GRID: '250m 격자 임대료·카드매출', COMP: '행정동 종합', C1: '행정동 임대료·매출', C2: '행정동 개·폐업', C3: '행정동 영업기간', C4: '행정동 업종 변화', POPUP: '250m 격자 팝업 압력(참고)', POPWEB: '250m 격자 팝업 온라인 언급(참고)', WEB: '250m 격자 온라인 언급(참고)' };
 // 온라인 언급: 분기 층화 추출 기대 건수, 구간 경계는 자료 파일의 사분위수(meta.breaks)
-const WEB_COLORS = ['#d7ece9', '#9bcfc7', '#4ea597', '#16766c'];
-const webBreaks = gs => gs.web?.meta?.breaks || [2, 5, 13];
-const webClass = (n, br) => (n <= br[0] ? 0 : n <= br[1] ? 1 : n <= br[2] ? 2 : 3);
 const fmtN = v => (Math.round(v * 10) / 10).toLocaleString('ko-KR');
 const ISSUED_NAMES = { COMP: '행정동 종합 등급', C1: '행정동 임대료·매출 등급', GRID: '250m 격자 임대료·카드매출 등급', GRIDC: '250m 격자 종합 등급' };
 const KIND = { popup: '성수동 팝업 주간 현황', rent: '서울신용보증재단 임대료', sales: '서울신용보증재단 매출', stores: '서울신용보증재단 점포·개폐업', change: '서울신용보증재단 영업기간', card: '카드(식음료, 격자) · 반영하지 않음(전 업종 카드로 계산)', allind: '카드(전 업종, 격자)', license: '외식업 인허가' };
@@ -642,8 +638,6 @@ export function popupStats(p) {
   const v = Object.values(grids).map(x => x.d).filter(x => x > 0).sort((a, b) => a - b), qt = f => (v.length ? v[Math.min(v.length - 1, Math.floor(f * v.length))] : 0);
   return { W, weekly, grids, breaks: [qt(0.25), qt(0.5), qt(0.75)], total: p.items.length, located: p.items.filter(x => x[1]).length, unresolved: p.unresolved || [] };
 }
-const POPUP_COLORS = ['#e6dff3', '#b9a6de', '#8763c4', '#5a3aa0'];
-const popupClass = (d, br) => (d <= br[0] ? 0 : d <= br[1] ? 1 : d <= br[2] ? 2 : 3);
 
 // 팝업 온라인 언급(참고): 매일 수집이 4주 이상 쌓이면 최근 13주, 그전에는 기초 표본
 export function popupMentionView(pm, nWeeks = 13, minWeeks = 4) {
@@ -655,7 +649,35 @@ export function popupMentionView(pm, nWeeks = 13, minWeeks = 4) {
   const v = Object.values(g).filter(x => x > 0).sort((a, b) => a - b), qt = f => (v.length ? v[Math.min(v.length - 1, Math.floor(f * v.length))] : 0);
   return { source: daily ? 'daily' : 'baseline', from: daily ? use[0] : pm.baseline.from, to: daily ? pm.meta.updated : pm.baseline.to, weeks: use.length, collected: keys.length, started: pm.meta.started, updated: pm.meta.updated, gaps: (pm.meta.gaps || []).length, docs, located, grids: g, breaks: [qt(0.25), qt(0.5), qt(0.75)] };
 }
-const POPWEB_COLORS = ['#dbe7f5', '#a3c4e8', '#5a93d3', '#23609f'];
+
+// ---------- 참고 신호 3종의 활성·쇠퇴·위험(프로토콜 52). 종합 등급에 넣지 않는다 ----------
+export function refGrades(series, universe, cut = CUT, jeffreys = false) {
+  const rows = universe.map(id => ({ id, y0: series[id]?.[0] || 0, y1: series[id]?.[1] || 0 }));
+  const T0 = rows.reduce((a, r) => a + r.y0, 0), T1 = rows.reduce((a, r) => a + r.y1, 0), N = rows.length; if (!(T0 + T1)) return null;
+  const p0 = T1 / (T0 + T1), act = rows.filter(r => r.y0 + r.y1 >= 1), sumN = act.reduce((a, r) => a + r.y0 + r.y1, 0);
+  const s2c = act.reduce((a, r) => { const n = r.y0 + r.y1; return a + n * (r.y1 / n - p0) ** 2; }, 0) / sumN, vc = s2c - p0 * (1 - p0) / (sumN / act.length);
+  const M = vc > 0 ? Math.max(p0 * (1 - p0) / vc - 1, 0) || 1 : null;
+  const m = T1 / N, vl = rows.reduce((a, r) => a + (r.y1 - m) ** 2, 0) / N - m, grids = {};
+  for (const r of rows) {
+    const n = r.y0 + r.y1, a0 = jeffreys ? .5 : M && p0 * M, b0 = jeffreys ? .5 : M && (1 - p0) * M;
+    const up = a0 ? 1 - betaI(p0, a0 + r.y1, b0 + r.y0) : 0.5, high = vl > 0 && m > 0 ? gammaQ(m * m / vl + r.y1, (m / vl + 1) * m) : 0.5, down = 1 - up;
+    const grade = n < 1 ? null : up > cut && high > cut ? '위험' : down > cut ? '쇠퇴' : '활성';
+    grids[r.id] = { y0: r.y0, y1: r.y1, up, high, grade, weak: grade === '활성' && up <= cut && down <= cut };
+  }
+  return { grids, T0, T1, p0, N };
+}
+function refSeries(base, merged, data, excluded) {
+  const all = data.grids.filter(g => !excluded.has(g.id)).map(g => g.id), seongsu = data.grids.filter(g => g.seongsu && !excluded.has(g.id)).map(g => g.id), out = {};
+  const H = base.webHistory, qs = H ? Object.keys(H.quarters).sort() : [];
+  if (qs.length >= 8) { const s = {}, last = qs.slice(-8); last.forEach((q, i) => { for (const [id, v] of Object.entries(H.quarters[q])) (s[id] ||= [0, 0])[i < 4 ? 0 : 1] += v[0]; }); out.WEB = { ...refGrades(s, all), period: [last[0], last[3], last[4], last[7]], label: q => qLabel(q) }; }
+  const w = (merged?.weeks || []).slice().sort((a, b) => (a.start < b.start ? -1 : 1)).slice(-8);
+  if (w.length >= 2) { const half = Math.ceil(w.length / 2), s = {}, hit = (it, ws) => ws.some(x => it[2] <= x.end && it[3] >= x.start); for (const it of merged.items) if (it[1]) { const a = (s[it[1]] ||= [0, 0]); if (hit(it, w.slice(0, half))) a[0]++; if (hit(it, w.slice(half))) a[1]++; } const r = refGrades(s, seongsu); if (r) out.POPUP = { ...r, period: [w[0].start, w[half - 1].end, w[half].start, w.at(-1).end] }; }
+  const pm = base.popupMentions, keys = Object.keys(pm?.weeks || {}).sort(); let s = null, period = null;
+  if (keys.length >= 26) { const use = keys.slice(-26); s = {}; use.forEach((k, i) => { for (const [id, n] of Object.entries(pm.weeks[k].grids)) (s[id] ||= [0, 0])[i < 13 ? 0 : 1] += n; }); period = [use[0], use[12], use[13], use[25]]; }
+  else if (base.popupPeriods) { const P = base.popupPeriods; s = {}; for (const [k, i] of [['early', 0], ['late', 1]]) for (const [id, n] of Object.entries(P[k].grids)) (s[id] ||= [0, 0])[i] = n; period = [P.early.from, P.early.to, P.late.from, P.late.to]; }
+  if (s) { const r = refGrades(s, seongsu); if (r) out.POPWEB = { ...r, period }; }
+  return out;
+}
 
 // ---------- 격자 산출 근거 ----------
 const GN4 = ['임대료·카드매출', '개·폐업', '영업기간', '업종 변화'];
@@ -680,9 +702,11 @@ export function gridDetail(gs, data, q, id) {
 export function gridCard(gs, data, q, id) {
   const x = gridDetail(gs, data, q, id); if (!x) return '';
   const head = x.comp ? `${x.comp.thin ? THIN_BADGE : badge(x.comp.GC)}<span>위험 ${x.comp.R} · 쇠퇴 ${x.comp.D} / 4</span>` : x.excluded ? '<span>등급 미산출</span>' : x.partial?.det ? `<span class="grade-badge" style="--g:#cfeccf;--gi:#0b0b0b">활성(일부 항목 확정)</span><span>항목 ${x.partial.n} / 4</span>` : x.partial ? `<span>종합 미산출(항목 ${x.partial.n} / 4)</span>` : '<span>자료 부족</span>';
-  const body = x.excluded ? '<p class="small-copy">성동구 면적이 50% 이하인 경계 격자라 등급을 내지 않습니다.</p>' : `<div class="pop-groups">${x.items.map(it => `<section class="pop-group"><table class="data-table pop-table"><thead><tr class="pop-item"><th><b>${h(it.name)}</b> ${it.grade ? (it.weak ? THIN_BADGE : badge(it.grade)) : '<span class="small-copy">미산출</span>'}</th><th>이 격자</th><th>서울</th></tr></thead><tbody>${it.rows.map(r => `<tr><td>${h(r[0])}</td><td>${h(r[1])}</td><td>${h(r[2])}</td></tr>`).join('')}${it.reason ? `<tr><td colspan="3" class="small-copy">사유: ${h(it.reason)}</td></tr>` : ''}</tbody></table></section>`).join('')}</div>`;
-  const pop = (x.popup ? `<p class="small-copy"><b>팝업 압력(참고)</b> 관측 ${gs.popups.W}개 주 평균 ${x.popup.d.toFixed(1)}건 운영 · 팝업 ${x.popup.n}건 · 건물 ${x.popup.b}곳</p>` : '') + (gs.popWeb?.grids?.[id] ? `<p class="small-copy"><b>팝업 온라인 언급(참고)</b> 주소가 확인된 글 ${gs.popWeb.grids[id]}건</p>` : '');
-  return `<div class="grid-pop" role="dialog" aria-label="격자 ${h(x.id)} 산출 근거"><button class="icon-btn grid-pop-close" data-action="close-grid" aria-label="닫기">×</button><h3>${h(x.dong)} · ${h(x.id)}</h3><div class="grid-pop-head"><span class="small-copy">${h(qLabel(q))}</span>${head}</div>${body}${pop}${x.excluded ? '' : '<p class="small-copy">종합은 위험 3개 이상이면 위험, 쇠퇴 2개 이상이면 쇠퇴입니다. 임대료는 소속 행정동 값이며 카드는 50m 자료를 250m로 합산했습니다.</p>'}</div>`;
+  const REFN = { POPUP: '팝업 압력', POPWEB: '팝업 온라인 언급', WEB: '웹 온라인 언급' }, refRow = k => { const r = gs.refs?.[k], v = r?.grids?.[id]; return `<tr><td><b>${REFN[k]}</b> ${!r ? '' : !v ? '<span class="small-copy">대상 아님</span>' : v.weak ? THIN_BADGE : v.grade ? badge(v.grade) : '<span class="small-copy">자료 없음</span>'}</td><td>${v ? `${fmtN(v.y0)} → ${fmtN(v.y1)}건` : '–'}</td><td>${v?.grade ? `${pr(v.up)} · ${pr(v.high)}` : '–'}</td></tr>`; };
+  const extra = [x.popup ? `팝업 ${gs.popups.W}개 주 평균 ${x.popup.d.toFixed(1)}건 운영 · 건물 ${x.popup.b}곳` : '', gs.popWeb?.grids?.[id] ? `팝업 언급 글 ${gs.popWeb.grids[id]}건` : '', gs.web?.grids?.[id] ? `웹 언급 층화 기준 ${fmtN(gs.web.grids[id][0])}건 · 업소 ${gs.web.grids[id][1]}곳` : ''].filter(Boolean).join(' · ');
+  const refs = x.excluded ? '' : `<section class="pop-group"><table class="data-table pop-table"><thead><tr class="pop-item"><th><b>참고 신호</b> <span class="small-copy">종합 미반영</span></th><th>직전 → 최근</th><th>증가 · 많을 확률</th></tr></thead><tbody>${['POPUP', 'POPWEB', 'WEB'].map(refRow).join('')}</tbody></table></section>`;
+  const body = x.excluded ? '<p class="small-copy">성동구 면적이 50% 이하인 경계 격자라 등급을 내지 않습니다.</p>' : `<div class="pop-groups">${x.items.map(it => `<section class="pop-group"><table class="data-table pop-table"><thead><tr class="pop-item"><th><b>${h(it.name)}</b> ${it.grade ? (it.weak ? THIN_BADGE : badge(it.grade)) : '<span class="small-copy">미산출</span>'}</th><th>이 격자</th><th>서울</th></tr></thead><tbody>${it.rows.map(r => `<tr><td>${h(r[0])}</td><td>${h(r[1])}</td><td>${h(r[2])}</td></tr>`).join('')}${it.reason ? `<tr><td colspan="3" class="small-copy">사유: ${h(it.reason)}</td></tr>` : ''}</tbody></table></section>`).join('')}${refs}</div>`;
+  return `<div class="grid-pop" role="dialog" aria-label="격자 ${h(x.id)} 산출 근거"><button class="icon-btn grid-pop-close" data-action="close-grid" aria-label="닫기">×</button><h3>${h(x.dong)} · ${h(x.id)}</h3><div class="grid-pop-head"><span class="small-copy">${h(qLabel(q))}</span>${head}</div>${body}${x.excluded ? '' : `<p class="small-copy">${extra ? `${extra}. ` : ''}종합은 위험 3개 이상이면 위험, 쇠퇴 2개 이상이면 쇠퇴입니다. 참고 신호는 종합에 넣지 않습니다.</p>`}</div>`;
 }
 
 export function buildModel(base, up, data) {
@@ -700,7 +724,7 @@ export function buildModel(base, up, data) {
   const grid = Object.fromEntries(Object.entries(g1).map(([q, v]) => [q, Object.fromEntries(Object.entries(v).map(([id, x]) => [id, x.G1]))]));
   for (const [q, v] of Object.entries(base.searchC6 || {})) for (const [code, g] of Object.entries(v)) if (panel[q]?.[code]) panel[q][code].C6 = g;   // 참고 항목(프로토콜 44)
   const missingRef = Object.keys(merged.dong).filter(q => q >= '2023Q1' && (!fin(ref[q]?.Rs) || !fin(ref[q]?.o) || !fin(ref[q]?.sg) || !fin(ref[q]?.vo))).sort();
-  return { panel, panelOrig, grid, gridC, gridP, gridOrig, gridCOrig, excluded, ref, sLic, missingRef, web: base.webMentions, popups: popupStats(mergePopups(base.popups, up)), popWeb: popupMentionView(base.popupMentions), webStatus: base.webStatus || null, lic, licXY: up?.licXY || null, ptCache: {}, detail: { g1, g4, eb, gridB: merged.gridB, allindB }, quarters, forecast: forecastNext(panel), merged };
+  return { panel, panelOrig, grid, gridC, gridP, gridOrig, gridCOrig, excluded, ref, sLic, missingRef, web: base.webMentions, popups: popupStats(mergePopups(base.popups, up)), popWeb: popupMentionView(base.popupMentions), webStatus: base.webStatus || null, refs: refSeries(base, mergePopups(base.popups, up), data, excluded), lic, licXY: up?.licXY || null, ptCache: {}, detail: { g1, g4, eb, gridB: merged.gridB, allindB }, quarters, forecast: forecastNext(panel), merged };
 }
 export const latestQuarter = gs => gs.quarters.filter(x => Object.values(gs.panel[x]).some(v => v.COMP)).at(-1);
 export const riskStreak = (gs, code, q) => { let n = 0, x = q; while (gs.panel[x]?.[code]?.COMP === '위험') { n++; x = qShift(x, -1); } return n; };
@@ -719,9 +743,10 @@ const EMPTY_CELL = { ...STYLE_BASE, fillColor: '#8a8a85', fillOpacity: 0, color:
 // 지도 칸의 색과 안내 문구. 등급 값은 buildModel 결과를 그대로 읽는다.
 export function gridStyle(gs, layer, q, g) {
   const head = `${g.dong} · 격자 ${g.id}`;
-  if (layer === 'POPWEB') { const n = gs.popWeb?.grids?.[g.id] || 0, k = n > 0 ? popupClass(n, gs.popWeb.breaks) : -1; return { style: k >= 0 ? FILLED(POPWEB_COLORS[k], .68) : EMPTY_CELL, title: `${head} · ${n ? `주소가 확인된 팝업 언급 글 ${n}건` : '주소가 확인된 글 없음'}` }; }
-  if (layer === 'POPUP') { const w = gs.popups?.grids?.[g.id], k = w && w.d > 0 ? popupClass(w.d, gs.popups.breaks) : -1; return { style: k >= 0 ? FILLED(POPUP_COLORS[k], .68) : EMPTY_CELL, title: `${head} · ${w ? `관측 주 평균 ${w.d.toFixed(1)}건 운영 · 팝업 ${w.n}건 · 건물 ${w.b}곳` : '집계된 팝업 없음'}` }; }
-  if (layer === 'WEB') { const w = gs.web?.grids?.[g.id], k = w ? webClass(w[0], webBreaks(gs)) : -1; return { style: k >= 0 ? FILLED(WEB_COLORS[k], .68) : EMPTY_CELL, title: `${head} · ${w ? `최근 4개 분기 층화 기준 게시글 ${fmtN(w[0])}건(분기당 ${gs.web.meta.stratumSize ?? '–'}건 추출 기준) · 언급 업소 ${w[1]}곳` : '연결된 게시글 없음'}` }; }
+  if (layer === 'POPWEB' || layer === 'POPUP' || layer === 'WEB') {
+    const r = gs.refs?.[layer]?.grids?.[g.id];
+    return { style: !r?.grade ? EMPTY_CELL : r.weak ? OUTLINED(GRADE.활성.color, .22, '3 2') : FILLED(GRADE[r.grade].color), title: `${head} · ${r?.grade ? `${r.grade}${r.weak ? '(근거 부족)' : ''} · 직전 ${fmtN(r.y0)}건 → 최근 ${fmtN(r.y1)}건` : '자료 없음'}` };
+  }
   if (gs.excluded?.has(g.id)) return { style: { ...STYLE_BASE, fillColor: '#8a8a85', fillOpacity: .18, color: '#8a8a85', weight: .7 }, title: `${head} · 성동구 면적 50% 이하(등급 미산출)` };
   if (layer === 'GRID') { const gr = gs.grid[q]?.[g.id]; return { style: gr ? FILLED(GRADE[gr].color) : EMPTY_CELL, title: `${head} · ${gr || '자료 부족'}` }; }
   const x = gs.gridC[q]?.[g.id], pa = gs.gridP?.[q]?.[g.id];
@@ -767,11 +792,9 @@ export function gradesPage(st, data) {
   if (key) for (const d of data.dongs) cur[d.code]?.[key] ? counts[cur[d.code][key]]++ : none++; else if (!['WEB', 'POPUP', 'POPWEB'].includes(layer)) for (const g of data.grids) gval(g.id) ? counts[gval(g.id)]++ : none++;
   const thin = layer === 'GRIDC' ? Object.values(gs.gridC[q] || {}).filter(x => x.thin).length : 0; if (thin) counts.활성 -= thin;
   const partN = layer === 'GRIDC' ? Object.keys(gs.gridP[q] || {}).length : 0, partDet = layer === 'GRIDC' ? Object.values(gs.gridP[q] || {}).filter(x => x.det).length : 0, exN = layer === 'GRIDC' ? gs.excluded.size : 0; if (layer === 'GRIDC') none -= partN + exN;
-  const pp_ = gs.popups, pbr = pp_?.breaks || [0, 0, 0], popCounts = POPUP_COLORS.map((_, k) => data.grids.filter(g => (pp_?.grids?.[g.id]?.d || 0) > 0 && popupClass(pp_.grids[g.id].d, pbr) === k).length), f1 = v => v.toFixed(1), popLabels = [`${f1(pbr[0])}건 이하`, `${f1(pbr[0])}~${f1(pbr[1])}건`, `${f1(pbr[1])}~${f1(pbr[2])}건`, `${f1(pbr[2])}건 초과`];
-  const wp = gs.web?.meta?.period || [], br = webBreaks(gs), webCounts = WEB_COLORS.map((_, k) => data.grids.filter(g => gs.web?.grids?.[g.id] && webClass(gs.web.grids[g.id][0], br) === k).length);
-  const webLabels = [`${fmtN(br[0])}건 이하`, `${fmtN(br[0])}~${fmtN(br[1])}건`, `${fmtN(br[1])}~${fmtN(br[2])}건`, `${fmtN(br[2])}건 초과`];
-  const pw_ = gs.popWeb, wbr = pw_?.breaks || [0, 0, 0], pwCounts = POPWEB_COLORS.map((_, k) => data.grids.filter(g => (pw_?.grids?.[g.id] || 0) > 0 && popupClass(pw_.grids[g.id], wbr) === k).length), pwLabels = [`${fmtN(wbr[0])}건 이하`, `${fmtN(wbr[0])}~${fmtN(wbr[1])}건`, `${fmtN(wbr[1])}~${fmtN(wbr[2])}건`, `${fmtN(wbr[2])}건 초과`];
-  const mapTitle = layer === 'POPWEB' ? `${pw_?.source === 'daily' ? `최근 ${pw_.weeks}주` : '기초 표본'}(${pw_?.from ?? ''}~${pw_?.to ?? ''}) · ${LAYER_NAMES.POPWEB}` : layer === 'POPUP' ? `주간 현황 ${pp_?.W ?? 0}개 주(${pp_?.weekly?.[0]?.start ?? ''}~${pp_?.weekly?.at(-1)?.end ?? ''}) · ${LAYER_NAMES.POPUP}` : layer === 'WEB' ? `최근 4개 분기(${qLabel(wp[0])}~${qLabel(wp[1])}) · ${LAYER_NAMES.WEB}` : `${qLabel(q)} · ${LAYER_NAMES[layer]} 등급`;
+  const pp_ = gs.popups, wp = gs.web?.meta?.period || [], pw_ = gs.popWeb, isRef = ['WEB', 'POPUP', 'POPWEB'].includes(layer), rf = isRef ? gs.refs?.[layer] : null, rfV = rf ? Object.values(rf.grids) : [], rp = rf?.period || [];
+  const refCounts = rf ? `${CL.slice().reverse().map(c => `<span>${badge(c)}<b>${rfV.filter(v => v.grade === c && !v.weak).length}</b></span>`).join('')}<span>${THIN_BADGE}<b>${rfV.filter(v => v.weak).length}</b></span><span><span class="grade-badge" style="--g:#e1e0d9;--gi:#52514e">자료 없음</span><b>${rfV.filter(v => !v.grade).length}</b></span>` : '';
+  const mapTitle = isRef ? `${layer === 'WEB' ? `${qLabel(rp[2])}~${qLabel(rp[3])}(직전 ${qLabel(rp[0])}~${qLabel(rp[1])})` : `${rp[2] ?? ''}~${rp[3] ?? ''}(직전 ${rp[0] ?? ''}~${rp[1] ?? ''})`} · ${LAYER_NAMES[layer]} 등급` : `${qLabel(q)} · ${LAYER_NAMES[layer]} 등급`;
   const pts = isGrid && st.gPoints && st.mapData ? licensePoints(gs, q, st.mapData.points) : null;
   const f = gs.forecast, fd = st.gDong && data.dongs.find(d => d.code === st.gDong), fx = fd && cur[fd.code];
   const alerts = data.dongs.map(d => ({ d, n: riskStreak(gs, d.code, q) })).filter(a => a.n > 0).sort((a, b) => b.n - a.n);
@@ -782,14 +805,14 @@ export function gradesPage(st, data) {
   <div class="map-toolbar"><div class="control"><label for="g-quarter">기준 분기</label><select id="g-quarter">${gs.quarters.slice().reverse().map(x => `<option value="${x}" ${x === q ? 'selected' : ''}>${qLabel(x)}${upQs.includes(x) ? ' (등록 자료)' : ''}</option>`).join('')}</select></div>
   <div class="control"><label for="g-layer">표시 등급</label><select id="g-layer">${Object.entries(LAYER_NAMES).map(([k, v]) => `<option value="${k}" ${k === layer ? 'selected' : ''}>${h(v)}</option>`).join('')}</select></div>
   ${isGrid ? `<div class="control"><label for="g-grid-search">격자 번호 찾기</label><input id="g-grid-search" list="g-grid-list" placeholder="예: 60754925" size="13" autocomplete="off"><datalist id="g-grid-list">${data.grids.map(g => `<option value="${g.id}">${h(g.dong)}</option>`).join('')}</datalist></div><label class="point-toggle"><input type="checkbox" id="g-points" ${st.gPoints ? 'checked' : ''}> 개·폐업 점 표시</label>` : ''}
-  <div class="grade-counts">${layer === 'POPWEB' ? POPWEB_COLORS.map((c, k) => `<span><span class="grade-badge" style="--g:${c};--gi:${k > 1 ? '#ffffff' : '#0b0b0b'}">${pwLabels[k]}</span><b>${pwCounts[k]}</b></span>`).join('') : layer === 'POPUP' ? POPUP_COLORS.map((c, k) => `<span><span class="grade-badge" style="--g:${c};--gi:${k > 1 ? '#ffffff' : '#0b0b0b'}">${popLabels[k]}</span><b>${popCounts[k]}</b></span>`).join('') : layer === 'WEB' ? WEB_COLORS.map((c, k) => `<span><span class="grade-badge" style="--g:${c};--gi:${k > 1 ? '#ffffff' : '#0b0b0b'}">${webLabels[k]}</span><b>${webCounts[k]}</b></span>`).join('') : `${CL.slice().reverse().map(c => `<span>${badge(c)}<b>${counts[c]}</b></span>`).join('')}${layer === 'GRIDC' ? `<span>${THIN_BADGE}<b>${thin}</b></span><span title="일부 항목만 있어 종합을 내지 않은 격자(그중 ${partDet}곳은 일부 항목으로 활성 확정)"><span class="grade-badge" style="--g:#d9d9d4;--gi:#0b0b0b">일부 항목</span><b>${partN}</b></span><span><span class="grade-badge" style="--g:#efefea;--gi:#52514e">경계 제외</span><b>${exN}</b></span>` : ''}<span>${badge(null)}<b>${none}</b></span>`}</div></div>
-  <div class="grade-grid"><section class="panel grade-map-panel"><h2>${h(mapTitle)}</h2><div id="grade-map-slot" class="grade-map-host"><p class="small-copy map-loading">지도를 불러오는 중입니다.</p></div>${isGrid && st.gGrid ? `<div class="grid-sheet">${gridCard(gs, data, q, st.gGrid)}</div>` : ''}${pts ? `<p class="small-copy point-legend"><i class="pt o"></i>최근 1년 개업 <b>${pts.filter(p => p.kind === 'O').length}</b>곳 <i class="pt c"></i>폐업 <b>${pts.filter(p => p.kind === 'C').length}</b>곳 · 외식업 인허가 자료, 격자의 개·폐업 수와 같은 기준입니다. 상호는 표시하지 않습니다.</p>` : ''}<p class="small-copy"><b>산출 기준</b> ${h(RULES[layer])}</p><p class="small-copy"><b>검증 결과</b> ${h(VALIDATION[layer])}</p>${layer === 'WEB' && gs.webStatus?.inProgress ? `<p class="small-copy"><b>수집 현황</b> ${h(qLabel(gs.webStatus.inProgress.quarter))} 매일 수집 중, 누적 ${Number(gs.webStatus.inProgress.docs).toLocaleString('ko-KR')}건(${h(gs.webStatus.inProgress.started)}부터, 마지막 수집일 ${h(gs.webStatus.inProgress.asOf)}). 분기가 끝나고 10일 뒤 지도에 반영합니다.</p>` : ''}${layer === 'POPWEB' && pw_ ? `<p class="small-copy"><b>수집 현황</b> 글 ${pw_.docs.toLocaleString('ko-KR')}건 중 주소 확인 ${pw_.located.toLocaleString('ko-KR')}건. 매일 수집은 ${h(pw_.started || '')}부터 ${pw_.collected}주째 쌓이고 있고, 4주가 쌓이면 최근 13주 값으로 바뀝니다. 마지막 수집일 ${h(pw_.updated || '')}.${pw_.gaps ? ` 수집 공백 경고 ${pw_.gaps}건.` : ''}</p>` : ''}<p class="small-copy">이 등급은 행정동 평균값 등을 이용한 참고 지표로, 실제 임대료 부담이나 내몰림 여부를 판정한 것이 아닙니다.</p></section>
-  <aside class="grade-side">
-    ${isGrid ? `<section class="panel"><h2>격자 점검 대상 (${h(qLabel(q))})</h2>${gridTargets.length ? `<ul class="alert-list grid-target-list">${gridTargets.map(a => `<li><button data-ggrid="${a.id}" class="text-button">${h(a.dong)} ${h(a.id.slice(2))}</button><span>${badge(a.g)} ${a.n > 1 ? `${a.n}분기 연속` : ''}</span></li>`).join('')}</ul>` : '<p class="small-copy">위험·쇠퇴 격자가 없습니다.</p>'}</section>` : ''}
+  <div class="grade-counts">${isRef ? refCounts : `${CL.slice().reverse().map(c => `<span>${badge(c)}<b>${counts[c]}</b></span>`).join('')}${layer === 'GRIDC' ? `<span>${THIN_BADGE}<b>${thin}</b></span><span title="일부 항목만 있어 종합을 내지 않은 격자(그중 ${partDet}곳은 일부 항목으로 활성 확정)"><span class="grade-badge" style="--g:#d9d9d4;--gi:#0b0b0b">일부 항목</span><b>${partN}</b></span><span><span class="grade-badge" style="--g:#efefea;--gi:#52514e">경계 제외</span><b>${exN}</b></span>` : ''}<span>${badge(null)}<b>${none}</b></span>`}</div></div>
+  <section class="panel grade-map-panel"><h2>${h(mapTitle)}</h2><div id="grade-map-slot" class="grade-map-host"><p class="small-copy map-loading">지도를 불러오는 중입니다.</p></div>${isGrid && st.gGrid ? `<div class="grid-sheet">${gridCard(gs, data, q, st.gGrid)}</div>` : ''}${pts ? `<p class="small-copy point-legend"><i class="pt o"></i>최근 1년 개업 <b>${pts.filter(p => p.kind === 'O').length}</b>곳 <i class="pt c"></i>폐업 <b>${pts.filter(p => p.kind === 'C').length}</b>곳 · 외식업 인허가 자료, 격자의 개·폐업 수와 같은 기준입니다. 상호는 표시하지 않습니다.</p>` : ''}</section>
+  <div class="grade-below">${isGrid ? `<section class="panel"><h2>격자 점검 대상 (${h(qLabel(q))})</h2>${gridTargets.length ? `<ul class="alert-list grid-target-list">${gridTargets.map(a => `<li><button data-ggrid="${a.id}" class="text-button">${h(a.dong)} ${h(a.id.slice(2))}</button><span>${badge(a.g)} ${a.n > 1 ? `${a.n}분기 연속` : ''}</span></li>`).join('')}</ul>` : '<p class="small-copy">위험·쇠퇴 격자가 없습니다.</p>'}</section>` : ''}
     ${isGrid && !fd ? '' : `<section class="panel"><h2>${fd ? h(fd.name) : '행정동 선택'}</h2>${fd ? `<table class="data-table"><tbody>${Object.entries(COMPONENTS).map(([k, v]) => `<tr><td>${h(v)}</td><td>${k === 'C2' && fx?.weak2 ? THIN_BADGE : badge(fx?.[k])}</td></tr>`).join('')}<tr><td>위험 항목 수</td><td><b>${fx?.R ?? '–'} / 4</b></td></tr><tr><td>쇠퇴 항목 수</td><td><b>${fx?.D ?? '–'} / 4</b></td></tr><tr><td>종합 위험 연속</td><td><b>${riskStreak(gs, fd.code, q)}분기</b></td></tr>${f?.grades[fd.code] && f.origin === q ? `<tr><td>${qLabel(f.target)} 예측</td><td>${badge(f.grades[fd.code].grade)}</td></tr>` : ''}</tbody></table><button class="button small ${saved ? 'ghost' : 'primary'} wide" data-action="save-unit" data-unit="D:${fd.code}" data-quarter="${q}">${icon(saved ? 'check' : 'plus')}${saved ? '검토 기록에 등록됨' : '검토 기록에 추가'}</button>` : '<p class="small-copy">지도에서 행정동을 선택하면 항목별 등급, 위험 항목 수, 다음 분기 예측을 보여 줍니다.</p>'}</section>`}
     <section class="panel"><h2>점검 대상 (${h(qLabel(q))})</h2>${alerts.length ? `<ul class="alert-list">${alerts.map(a => `<li><button data-gdong="${a.d.code}" class="text-button">${h(a.d.name)}</button><span>${a.n >= 2 ? '<b>정밀 진단</b>' : '관찰 강화'} · 종합 위험 ${a.n}분기 연속</span></li>`).join('')}</ul>` : '<p class="small-copy">종합 위험 행정동이 없습니다.</p>'}</section>
-    ${f ? `<section class="panel"><h2>${h(qLabel(f.target))} 종합 등급 예측</h2><p class="small-copy">${h(qLabel(f.origin))}까지의 자료로 예측했습니다(과거 사례 ${f.pairs}건 학습). 새 분기 자료를 등록하면 다시 계산합니다.</p><div class="forecast-list">${data.dongs.map(d => f.grades[d.code] ? `<span>${h(d.name)} ${badge(f.grades[d.code].grade)}</span>` : '').join('')}</div></section>` : ''}
-  </aside></div>
+    ${f ? `<section class="panel"><h2>${h(qLabel(f.target))} 종합 등급 예측</h2><p class="small-copy">${h(qLabel(f.origin))}까지의 자료로 예측했습니다(과거 사례 ${f.pairs}건 학습). 새 분기 자료를 등록하면 다시 계산합니다.</p><div class="forecast-list">${data.dongs.map(d => f.grades[d.code] ? `<span>${h(d.name)} ${badge(f.grades[d.code].grade)}</span>` : '').join('')}</div></section>` : ''}</div>
+  <section class="panel grade-notes"><p class="small-copy"><b>산출 기준</b> ${h(RULES[layer])}</p><p class="small-copy"><b>검증 결과</b> ${h(VALIDATION[layer])}</p>${layer === 'WEB' && gs.webStatus?.inProgress ? `<p class="small-copy"><b>수집 현황</b> ${h(qLabel(gs.webStatus.inProgress.quarter))} 매일 수집 중, 누적 ${Number(gs.webStatus.inProgress.docs).toLocaleString('ko-KR')}건(${h(gs.webStatus.inProgress.started)}부터, 마지막 수집일 ${h(gs.webStatus.inProgress.asOf)}). 분기가 끝나고 10일 뒤 지도에 반영합니다.</p>` : ''}${layer === 'POPWEB' && pw_ ? `<p class="small-copy"><b>수집 현황</b> 글 ${pw_.docs.toLocaleString('ko-KR')}건 중 주소 확인 ${pw_.located.toLocaleString('ko-KR')}건. 매일 수집은 ${h(pw_.started || '')}부터 ${pw_.collected}주째 쌓이고 있고, 4주가 쌓이면 최근 13주 값으로 바뀝니다. 마지막 수집일 ${h(pw_.updated || '')}.${pw_.gaps ? ` 수집 공백 경고 ${pw_.gaps}건.` : ''}</p>` : ''}<p class="small-copy">이 등급은 행정동 평균값 등을 이용한 참고 지표로, 실제 임대료 부담이나 내몰림 여부를 판정한 것이 아닙니다.</p></section>
+  
   <section class="panel"><h2>등급 변화 추이 · ${h(isGrid ? '행정동 종합' : LAYER_NAMES[layer])} (최근 13개 분기, ● 성수동 4개 동)</h2>${flowMatrix(gs, data, isGrid ? 'COMP' : layer)}</section>
   <section class="panel"><h2>등급 기준의 근거</h2><p class="small-copy">젠트리피케이션은 여러 현상이 함께 나타나는 과정입니다. 선행연구(Davidson·Lees 2005)가 정리한 네 가지 정의 요소를 상권 자료로 옮겨 4개 항목을 만들었습니다.</p>
   <table class="data-table"><thead><tr><th>정의 요소</th><th>상권에서 나타나는 모습</th><th>등급 항목</th></tr></thead><tbody>${CRITERIA_BASIS.map(r => `<tr><td><b>${h(r[0])}</b></td><td>${h(r[1])}</td><td>${h(r[2])}</td></tr>`).join('')}</tbody></table>
