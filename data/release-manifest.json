@@ -28,12 +28,12 @@
       "sha256": "130f7cf995d82c584434486fc8304784e6b497e63c9ff1b7c97ea2280d6d3b65"
     },
     "data/grades/web_mentions.json": {
-      "sha256": "39135ab129cd1f55be0368165cdb2ad57f27e70258b792f21b14dcb190a17e40",
-      "bytes": 4923
+      "bytes": 5368,
+      "sha256": "2987a64e16d7c115980fa166ead67ab6cac3fab5b18df29c56e8fad214abb950"
     },
     "data/grades/web_mentions_history.json": {
-      "sha256": "1d94df670a43908682f934d81c1d1400d3e80efd92c24e9340a479fa20d95fc3",
-      "bytes": 54818
+      "bytes": 58441,
+      "sha256": "35436eb1bbbb5989ba62a13c581eb4ad9eec3380eb44c4b8d94d8e7656a40d70"
     },
     "data/grades/popups.json": {
       "sha256": "274682dbaa1eaeaa3f3e075416d3055fa3a58574054f281df51d4c22d8faae50",
