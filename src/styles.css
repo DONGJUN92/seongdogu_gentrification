@@ -47,7 +47,7 @@
 .grid-pop{position:relative}
 .grid-pop h3{margin:0 26px 6px 0;font-size:15px}
 .grid-pop-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px;font-size:12px}
-.grid-pop-close{position:absolute;right:8px;top:6px;font-size:18px;line-height:1;background:none;border:0}
+.grid-pop-close{position:absolute;right:0;top:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;padding:0;background:#f1f2ec;border:0;border-radius:6px;color:#243b39}.grid-pop-close:hover{background:#e1e3da}.grid-pop-close .icon{width:15px;height:15px}
 .pop-table{font-size:12px;width:100%}.pop-table td,.pop-table th{padding:3px 6px}.pop-item th{background:#f4f4ef;font-weight:500;white-space:normal}
 .grid-target-list{max-height:280px;overflow:auto}
 .basis-sub{margin:14px 0 6px;font-size:14px}
@@ -66,8 +66,6 @@
 .pt.o{background:#1f6fd1}.pt.c{background:#fff;border:2px solid #14213d}
 .grid-float{position:absolute;z-index:1001;width:min(740px,calc(100% - 16px));max-height:calc(100% - 16px);overflow:auto;background:#fff;border:1px solid #d9d9d4;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.22);padding:12px 16px;cursor:default;font-size:12px;line-height:1.4}
 .grid-float[hidden]{display:none}
-.grid-float.hovering{pointer-events:none}
-.grid-float.hovering .grid-pop-close{display:none}
 .grid-float p{margin:4px 0 0}
 .grid-float h3{margin:0 26px 4px 0}
 .pop-groups{columns:2;column-gap:18px}

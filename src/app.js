@@ -77,9 +77,14 @@ function render() {
 }
 const mapHandlers = { grid: id => { state.gGrid = id; render(); }, dong: code => { state.gDong = code; render(); }, closeGrid: () => { state.gGrid = ''; render(); } };
 function syncGradeMap() {
-  const slot = $('#grade-map-slot'), gs = state.grades; if (!slot || !gs) return;
+  const slot = $('#grade-map-slot'); if (!slot || !state.grades) return;
   if (!state.mapData) { loadMapData(); return; }
   placeGradeMap(slot, state.mapData, mapHandlers);
+  refreshGradeMap();
+}
+function closeGridCard() { state.gGrid = ''; $('.grid-sheet')?.remove(); refreshGradeMap(); }   // 화면 전체를 다시 그리지 않아 열려 있는 선택 상자를 유지한다
+function refreshGradeMap() {
+  const gs = state.grades; if (!gs || !state.mapData || state.page !== 'grades') return;
   const q = gs.quarters.includes(state.gQuarter) ? state.gQuarter : latestQuarter(gs);
   updateGradeMap({ gs, data: state.data, layer: state.gLayer, q, sel: state.gGrid, focus: state.gDong, points: state.gPoints, coords: state.mapData.points, card: id => gridCard(gs, state.data, q, id) });
 }
@@ -110,7 +115,8 @@ function modal(kind) {
 document.addEventListener('click', async e => {
   if (!state.data) return;
   const gg = e.target.closest('[data-ggrid]'); if (gg) { state.gGrid = gg.dataset.ggrid; render(); return; }
-  if (e.target.closest('[data-action="close-grid"]')) { state.gGrid = ''; render(); return; }
+  if (e.target.closest('[data-action="close-grid"]')) { closeGridCard(); return; }
+  if (state.gGrid && !e.target.closest('.grid-float,.grid-sheet,.leaflet-container')) closeGridCard();
   const gd = e.target.closest('[data-gdong]'); if (gd) { state.gDong = gd.dataset.gdong; if (state.page !== 'grades') location.hash = `#grades?dong=${gd.dataset.gdong}`; else render(); return; }
   const ga = e.target.closest('[data-gact]'); if (ga) { if (ga.dataset.gact === 'export') download(JSON.stringify(state.gUploads), '성동구상권모니터링_등록자료.json', 'application/json'); if (ga.dataset.gact === 'reb') { const q = (document.getElementById('g-reb-q')?.value || '').trim().toUpperCase(), v = Number(document.getElementById('g-reb-v')?.value); if (!/^\d{4}Q[1-4]$/.test(q) || !(v > 0)) { toast('분기(예: 2026Q4)와 0보다 큰 지수 값을 입력하십시오.'); return; } (state.gUploads.reb ||= {})[q] = v; saveUploads(state.gUploads); toast(`${q} 지수를 등록했습니다.`); refreshGrades(); return; } if (ga.dataset.gact === 'reset' && confirm('이 브라우저에 저장된 등록 자료를 모두 지울까요?')) { state.gUploads = { dong: {}, grid: {}, log: [] }; saveUploads(state.gUploads); refreshGrades(); } return; }
   const remove = e.target.closest('[data-remove]'); if (remove) { state.note.selected = state.note.selected.filter(id => id !== remove.dataset.remove); delete state.note.selectedQuarters[remove.dataset.remove]; persist(); render(); return; }

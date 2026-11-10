@@ -1,6 +1,6 @@
 // 등급 모니터링 지도. Leaflet은 사이트에 포함되어 있고(assets/vendor), 배경지도는 브이월드를 쓰되 불러오지 못하면 OSM으로 바꾼다.
 // 화면 전체를 다시 그려도 지도는 유지되도록 host 요소를 한 번만 만들어 자리(slot)에 옮겨 끼운다.
-// 격자 상세는 지도를 옮기지 않는 떠 있는 카드로 보여 준다: 마우스를 올리면 임시로, 누르면 계속 표시한다.
+// 격자 상세는 지도를 옮기지 않는 떠 있는 카드로 보여 준다. 격자를 누를 때만 열고, x 버튼이나 카드 바깥을 누르면 닫는다.
 import { escapeHtml as h } from './core.js';
 import { gridStyle, dongStyle, licensePoints } from './grades.js';
 
@@ -26,11 +26,12 @@ const latlngs = polys => polys.map(poly => poly.map(ring => ring.map(([lon, lat]
 function placeFloat() {
   const c = cells.get(floatId); if (!c) return;
   const b = c.getBounds(), a = map.latLngToContainerPoint(b.getNorthWest()), z = map.latLngToContainerPoint(b.getSouthEast()), W = host.clientWidth, H = host.clientHeight, w = float.offsetWidth, ht = float.offsetHeight, gap = 14;
-  let x = z.x + gap; if (x + w > W - 8) x = a.x - gap - w; if (x < 8) x = Math.max(8, (W - w) / 2);
-  float.style.left = `${Math.round(x)}px`; float.style.top = `${Math.round(Math.max(8, Math.min((a.y + z.y - ht) / 2, H - ht - 8)))}px`;
+  let x = z.x + gap, y = (a.y + z.y - ht) / 2; if (x + w > W - 8) x = a.x - gap - w;
+  if (x < 8) { x = (a.x + z.x - w) / 2; y = a.y - gap - ht; if (y < 8) y = z.y + gap; }   // 좌우에 자리가 없으면 격자 위나 아래에 둔다
+  float.style.left = `${Math.round(Math.max(8, Math.min(x, W - w - 8)))}px`; float.style.top = `${Math.round(Math.max(8, Math.min(y, H - ht - 8)))}px`;
 }
-function showCard(id, pinned) {
-  float.innerHTML = last.card(id); float.className = `grid-float ${pinned ? 'pinned' : 'hovering'}${host.clientWidth < 640 ? ' one' : ''}`; float.hidden = false; floatId = id; placeFloat();
+function showCard(id) {
+  float.innerHTML = last.card(id); float.className = `grid-float${host.clientWidth < 640 ? ' one' : ''}`; float.hidden = false; floatId = id; placeFloat();
 }
 function hideCard() { float.hidden = true; floatId = ''; }
 
@@ -52,8 +53,8 @@ function create(config) {
       const c = L.polygon(latlngs(polys), { bubblingMouseEvents: false }).addTo(gridGroup); cells.set(id, c);
       c.on('click', () => on.grid(id));
       if (hover) {
-        c.on('mouseover', () => { if (last.sel !== id) c.setStyle(HOVER); if (!isSheet()) showCard(id, last.sel === id); });
-        c.on('mouseout', () => { if (last.sel !== id) c.setStyle(c.baseStyle); if (isSheet()) return; if (last.sel && last.isGrid) showCard(last.sel, true); else hideCard(); });
+        c.on('mouseover', () => { if (last.sel !== id) c.setStyle(HOVER); });
+        c.on('mouseout', () => { if (last.sel !== id) c.setStyle(c.baseStyle); });
       }
     }
     for (const [code, d] of Object.entries(geo.dongs)) {
@@ -64,6 +65,7 @@ function create(config) {
     const b = L.latLngBounds([...dongs.values()].map(p => p.getBounds()));
     map.fitBounds(b, { padding: [8, 8] }); map.setMaxBounds(b.pad(2));
     map.on('move zoom', () => { if (floatId) placeFloat(); });
+    map.on('click', () => { if (last.sel) on.closeGrid(); });   // 격자 바깥의 지도를 누르면 닫는다(격자 클릭은 지도로 전달되지 않음)
     map.on('zoomend', syncPointVisibility);
   };
 }
@@ -103,7 +105,7 @@ export function updateGradeMap({ gs, data, layer, q, sel, focus, points, coords,
   const pinKey = isGrid && sel && !isSheet() ? `${sel}|${q}` : '', changed = pinKey !== last.pinKey || last.gs !== gs;
   last = { gs, layer, q, sel: isGrid ? sel : '', focus, points, isGrid, pinKey, card };
   if (changed) {
-    if (pinKey) { const c = cells.get(sel); map.panInside(c.getCenter(), { padding: [40, 40] }); showCard(sel, true); } else hideCard();
+    if (pinKey) { const c = cells.get(sel); map.panInside(c.getCenter(), { padding: [40, 40] }); showCard(sel); } else hideCard();
   }
   syncPointVisibility();
 }
