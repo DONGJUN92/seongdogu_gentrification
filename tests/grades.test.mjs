@@ -65,9 +65,13 @@ test('issued grid forecasts are scored with the original definitions, not the bo
   const gs=buildModel(base,null,data),q='2026Q1',ex=[...gs.excluded].filter(id=>gs.gridOrig[q]?.[id]);assert.ok(ex.length>0);
   for(const id of ex){assert.equal(observedGetter(gs,'GRID',q)(id),gs.gridOrig[q][id]);assert.equal(gs.grid[q]?.[id],undefined);}
   for(const [id,v] of Object.entries(ref.grid2026Q1))assert.equal(observedGetter(gs,'GRID',q)(id),v,id);});
-test('web mention map is the quarter-stratified sum of the latest four quarters of its history',async()=>{
+test('web mention map is the quarter-stratified sum of the latest four quarters of one collection method (protocol 53)',async()=>{
   const H=JSON.parse(await readFile(new URL('../data/grades/web_mentions_history.json',import.meta.url),'utf8')),M=JSON.parse(await readFile(new URL('../data/grades/web_mentions.json',import.meta.url),'utf8'));
-  const K=Math.min(...Object.values(H.totals)),qs=Object.keys(H.quarters).sort().slice(-4),acc={};assert.equal(M.meta.stratumSize,K);
+  const all=Object.keys(H.quarters).sort(),mOf=q=>H.methods?.[q]||'archive';for(const q of all)assert.ok(['archive','batch','daily'].includes(mOf(q)),q);
+  const tail=l=>{const o=[];for(let i=l.length-1;i>=0;i--){if(o.length&&qShift(l[i],1)!==o[0])break;o.unshift(l[i]);}return o;};
+  const method=all.some(q=>mOf(q)==='daily')?'daily':'archive',qs=tail(all.filter(q=>mOf(q)===method)).slice(-4),acc={};
+  const K=Math.min(...all.filter(q=>mOf(q)===method).map(q=>H.totals[q]));assert.equal(M.meta.stratumSize,K);assert.equal(M.meta.method,method);assert.equal(M.meta.quarters,qs.length);
+  for(const q of qs)assert.notEqual(mOf(q),'batch',q);
   for(const q of qs)for(const [g,[n,b]] of Object.entries(H.quarters[q])){const a=(acc[g]||=[0,0]);a[0]+=n*K/H.totals[q];a[1]=Math.max(a[1],b);}
   assert.deepEqual(M.meta.period,[qs[0],qs.at(-1)]);assert.deepEqual(Object.keys(M.grids).sort(),Object.keys(acc).sort());
   for(const [g,[v,b]] of Object.entries(acc)){assert.ok(Math.abs(M.grids[g][0]-v)<0.006,g);assert.equal(M.grids[g][1],b,g);}
@@ -145,3 +149,27 @@ test('map cell colours keep the composite grade counts',()=>{const gs=buildModel
 
 import {refGrades} from '../src/grades.js';
 test('reference signal rule: more and rising is risk, falling is decline, no evidence is weak',()=>{const ids=Array.from({length:40},(_,i)=>'g'+i),s={};ids.forEach((id,i)=>{s[id]=[5+(i%5),5+(i%5)];});s.g0=[2,60];s.g1=[40,2];s.g2=[0,0];const r=refGrades(s,ids);assert.equal(r.grids.g0.grade,'위험');assert.equal(r.grids.g1.grade,'쇠퇴');assert.equal(r.grids.g2.grade,null);assert.ok(r.grids.g5.grade==='활성');assert.equal(refGrades({},ids),null);});
+
+import {webPlan,gridCard} from '../src/grades.js';
+test('web grades and the map never mix collection methods and never use batch quarters (protocol 53)',()=>{
+  const q=k=>Object.fromEntries(k.map(x=>[x,{g1:[1,1]}])),H=(arch,batch,daily)=>({quarters:q([...arch,...batch,...daily]),methods:Object.fromEntries([...arch.map(x=>[x,'archive']),...batch.map(x=>[x,'batch']),...daily.map(x=>[x,'daily'])])});
+  const run=(a,n)=>Array.from({length:n},(_,i)=>qShift(a,i)),arch=run('2022Q1',18);
+  let p=webPlan(H(arch,['2026Q3'],[]));assert.equal(p.mode,'grade');assert.equal(p.method,'archive');assert.deepEqual(p.quarters,run('2024Q3',8));assert.deepEqual(p.skipped,['2026Q3']);
+  p=webPlan(H(arch,['2026Q3'],['2026Q4']));assert.equal(p.mode,'level');assert.equal(p.method,'daily');assert.deepEqual(p.quarters,['2026Q4']);
+  p=webPlan(H(arch,['2026Q3'],run('2026Q4',6)));assert.equal(p.mode,'level');assert.deepEqual(p.quarters,run('2027Q2',4));
+  p=webPlan(H(arch,['2026Q3'],run('2026Q4',8)));assert.equal(p.mode,'grade');assert.equal(p.method,'daily');assert.deepEqual(p.quarters,run('2026Q4',8));
+  p=webPlan(H(arch,['2026Q3','2027Q2'],[...run('2026Q4',2),...run('2027Q3',8)]));assert.equal(p.mode,'grade');assert.deepEqual(p.quarters,run('2027Q3',8));
+  p=webPlan(H(arch,['2026Q3','2027Q2'],[...run('2026Q4',2),...run('2027Q3',3)]));assert.equal(p.mode,'level');assert.deepEqual(p.quarters,run('2027Q3',3));});
+test('public web grade uses the September archive 2024Q3-2026Q2 until daily quarters exist',async()=>{
+  const H=JSON.parse(await readFile(new URL('../data/grades/web_mentions_history.json',import.meta.url),'utf8')),M=JSON.parse(await readFile(new URL('../data/grades/web_mentions.json',import.meta.url),'utf8'));
+  if(Object.values(H.methods).includes('daily'))return;
+  const gs=buildModel({...base,webHistory:H,webMentions:M},null,data),r=gs.refs.WEB,v=Object.values(r.grids),c=k=>v.filter(x=>x.grade===k&&!x.weak).length;
+  assert.equal(r.method,'archive');assert.deepEqual(r.period,['2024Q3','2025Q2','2025Q3','2026Q2']);assert.deepEqual(M.meta.period,['2025Q3','2026Q2']);
+  assert.deepEqual([c('위험'),c('쇠퇴'),c('활성'),v.filter(x=>x.weak).length,v.filter(x=>!x.grade).length],[17,64,11,72,110]);
+  const y1=['2025Q3','2025Q4','2026Q1','2026Q2'].reduce((s,q)=>s+Object.entries(H.quarters[q]).filter(([id])=>r.grids[id]).reduce((a,[,x])=>a+x[0],0),0);assert.equal(r.T1,y1);});
+test('web layer shows mention levels without a grade once daily quarters exist',async()=>{
+  const H=JSON.parse(await readFile(new URL('../data/grades/web_mentions_history.json',import.meta.url),'utf8')),M=JSON.parse(await readFile(new URL('../data/grades/web_mentions.json',import.meta.url),'utf8'));
+  const D={...H,quarters:{...H.quarters,'2026Q4':H.quarters['2026Q2']},methods:{...H.methods,'2026Q4':'daily'}},W={meta:{...M.meta,period:['2026Q4','2026Q4'],method:'daily',methodLabel:'매일 수집'},grids:M.grids};
+  const gs=buildModel({...base,webHistory:D,webMentions:W},null,data),q=latestQuarter(gs);assert.equal(gs.refs.WEB,undefined);assert.equal(gs.webPlan.mode,'level');
+  const colours=['#d7ece9','#9bcfc7','#4ea597','#16766c'],id=Object.keys(W.grids)[0],g=data.grids.find(x=>x.id===id);
+  assert.ok(colours.includes(gridStyle(gs,'WEB',q,g).style.fillColor));assert.match(gridCard(gs,data,q,id),/등급 없음\(언급량만 표시\)/);assert.match(gridCard(gs,data,q,id),/웹 언급\(2026년 4분기\) 층화/);});

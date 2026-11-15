@@ -4,8 +4,10 @@
 2. 자동 규칙: 상호(공백 제거)가 지명이거나 2글자 이하이면 제외한다.
 3. 업소마다 네이버 블로그 검색 API를 "상호 + 법정동" 최신순으로 조회해, 제목·요약에 상호가 들어간 글을 모은다.
 4. 매일 새 글을 진행 분기 상태 파일에 쌓는다. 업소 2곳 이상에 연결된 글은 제외한다. 남은 글을 업소 좌표의 250m 격자로 센다.
-5. 분기가 끝나고 10일이 지나면(기존 분기 수집과 같은 시점) data/grades/web_mentions_history.json에 분기를 추가하고, 완료된 최근 4개 분기를 분기 층화 추출 기대값으로 합쳐
-   data/grades/web_mentions.json을 다시 만든다. 지도에는 완료된 분기만 쓴다(진행 분기를 넣으면 층화 기준이 흔들린다).
+5. 분기가 끝나고 10일이 지나면(기존 분기 수집과 같은 시점) data/grades/web_mentions_history.json에 분기를 수집 방식과 함께 추가하고,
+   같은 방식으로 완료된 최근 4개 분기 이내를 분기 층화 추출 기대값으로 합쳐 data/grades/web_mentions.json을 다시 만든다.
+   수집 방식(프로토콜 53): archive(2026년 9월 일괄 아카이브), batch(분기가 끝난 뒤 한 번에 수집, 검색 한도로 글이 많은 업소가 빠져 비교·지도에 쓰지 않음),
+   daily(매일 수집). 방식이 다른 분기는 섞지 않는다. 진행 분기도 지도에 넣지 않는다.
 
 환경변수: SEOUL_OPENAPI_KEY, NAVER_CLIENT_ID, NAVER_CLIENT_SECRET (값은 출력하지 않는다)
 사용: python scripts/web_mentions/collect_web_mentions.py [--limit 50] [--dry-run]     매일 수집
@@ -105,16 +107,35 @@ def posts_for(b, s, e, headers):
         if (oldest and oldest < s) or len(items) < 100: break
     return found
 
+METHOD_LABELS = {'archive': '2026년 9월 일괄 아카이브', 'batch': '분기 종료 후 일괄 수집(비교·지도 제외)', 'daily': '매일 수집'}
+def method_of(H, q):
+    return H.get('methods', {}).get(q, 'archive')
+def q_next(q):
+    y, n = int(q[:4]), int(q[5]); return f'{y + (n == 4)}Q{1 if n == 4 else n + 1}'
+def run_tail(qs):
+    """정렬된 분기 목록에서 마지막 분기로 끝나는 연속 구간."""
+    out = []
+    for q in reversed(qs):
+        if out and q_next(q) != out[0]: break
+        out.insert(0, q)
+    return out
+def map_quarters(H):
+    """지도·카드에 쓸 분기와 방식(프로토콜 53): 매일 수집 분기가 있으면 그 최근 4개 이내, 없으면 아카이브 최근 4개. batch는 쓰지 않는다."""
+    qs = sorted(H['quarters'])
+    for m in ('daily', 'archive'):
+        tail = run_tail([q for q in qs if method_of(H, q) == m])
+        if tail: return tail[-4:], m
+    return [], None
 def latest_map(H, meta_base):
-    """최근 4개 분기 지도. 수집 시점 편향은 분기 층화 추출로 맞춘다: 분기마다 K건(이력 중 가장 적은 분기 건수)을
+    """같은 수집 방식의 최근 4개 분기 이내 지도. 수집 시점 편향은 분기 층화 추출로 맞춘다: 분기마다 K건(같은 방식 분기 중 가장 적은 분기 건수)을
     비복원 추출했을 때의 기대 건수 = 격자 건수 × K / 분기 전체 건수."""
-    T = H['totals']; K = min(T.values()); qs = sorted(H['quarters'])[-4:]; acc = {}
+    T = H['totals']; qs, method = map_quarters(H); K = min(T[q] for q in H['quarters'] if method_of(H, q) == method); acc = {}
     for q in qs:
         for g, (n, b) in H['quarters'][q].items():
             a = acc.setdefault(g, [0.0, 0]); a[0] += n * K / T[q]; a[1] = max(a[1], b)
     acc = {g: [round(v[0], 2), v[1]] for g, v in sorted(acc.items())}
     vals = sorted(v[0] for v in acc.values()); qt = lambda p: vals[min(len(vals) - 1, int(p * len(vals)))]
-    meta = {**meta_base, 'period': [qs[0], qs[-1]], 'grids': len(acc), 'stratumSize': K, 'docs_total': round(sum(v[0] for v in acc.values()), 1),
+    meta = {**meta_base, 'period': [qs[0], qs[-1]], 'quarters': len(qs), 'method': method, 'methodLabel': METHOD_LABELS[method], 'grids': len(acc), 'stratumSize': K, 'docs_total': round(sum(v[0] for v in acc.values()), 1),
             'breaks': [round(qt(.25), 2), round(qt(.5), 2), round(qt(.75), 2)], 'updated': dt.date.today().isoformat()}
     return {'meta': meta, 'grids': acc}
 def rebuild_latest(H):
@@ -122,10 +143,12 @@ def rebuild_latest(H):
     keep = {k: v for k, v in old.items() if k in ('source', 'note', 'businesses_definition', 'history')}
     json.dump(latest_map(H, keep), open(LATEST, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
 
-def add_quarter(q, qcounts, source):
-    """끝난 분기를 이력에 넣고 지도를 다시 만든다."""
+def add_quarter(q, qcounts, source, method):
+    """끝난 분기를 수집 방식과 함께 이력에 넣고 지도를 다시 만든다."""
+    assert method in METHOD_LABELS, method
     H = json.load(open(HIST, encoding='utf-8'))
     H['quarters'][q] = qcounts; H['quarters'] = dict(sorted(H['quarters'].items()))
+    H.setdefault('methods', {})[q] = method; H['methods'] = dict(sorted(H['methods'].items()))
     H.setdefault('totals', {})[q] = sum(v[0] for v in qcounts.values()); H['totals'] = dict(sorted(H['totals'].items()))
     H.setdefault('sources', {})[q] = source
     json.dump(H, open(HIST, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
@@ -156,7 +179,7 @@ def batch(q, a, today):
     print(f'{q}: 게시글 {sum(v[0] for v in qcounts.values())}건, 격자 {len(qcounts)}곳, API 호출 {calls}회, 실패 {failed}회', flush=True)
     stop_if_failed(len(biz))
     if a.dry_run: return
-    add_quarter(q, qcounts, f'분기 일괄 수집 {today.isoformat()}(네이버 블로그 검색 API, 상호 + 법정동, 대상 업소 {len(biz)}곳)')
+    add_quarter(q, qcounts, f'분기 일괄 수집 {today.isoformat()}(네이버 블로그 검색 API, 상호 + 법정동, 대상 업소 {len(biz)}곳)', 'batch')
     write_status(today, q, '수집 완료')
 
 
@@ -197,7 +220,7 @@ def daily(a, today):
         if q_range(q)[1] + dt.timedelta(days=GRACE_DAYS) < today:
             s_ = st['quarters'][q]; qc = tally(s_['posts'])
             if not a.dry_run:
-                add_quarter(q, qc, f"매일 수집 {s_['started']}~{s_['lastRun']}(네이버 블로그 검색 API, 상호 + 법정동)")
+                add_quarter(q, qc, f"매일 수집 {s_['started']}~{s_['lastRun']}(네이버 블로그 검색 API, 상호 + 법정동)", 'daily')
             del st['quarters'][q]; print(f'{q}: 확정, 게시글 {sum(v[0] for v in qc.values())}건', flush=True)
     prev = prev_quarter(today)
     if prev not in H['quarters'] and prev not in st['quarters'] and not a.dry_run and q_range(prev)[1] + dt.timedelta(days=GRACE_DAYS) < today:
