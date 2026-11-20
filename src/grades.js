@@ -710,16 +710,18 @@ export function partialGrade(parts) {
   for (let r = 0; r <= m; r++) for (let d = 0; d <= m - r; d++) out.add(R + r >= 3 ? '위험' : D + d >= 2 ? '쇠퇴' : '활성');
   return out.size === 1 ? [...out][0] : null;
 }
+// 로그 변화량(전년 같은 분기 대비)은 판정에 그대로 쓰고, 화면에는 실제 증감률(e^x − 1)로 표시한다.
+const lgP = v => (fin(v) ? sgnP(Math.expm1(v)) : '–');
 const sgnP = v => (fin(v) ? `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%` : '–'), ppt = v => (fin(v) ? `${v >= 0 ? '+' : ''}${v.toFixed(1)}%p` : '–'), rate = v => (fin(v) ? `${(v * 100).toFixed(1)}%` : '–'), mon = v => (fin(v) ? `${Math.round(v)}개월` : '–'), pr = v => (fin(v) ? v.toFixed(2) : '–');
 export function gridDetail(gs, data, q, id) {
   const g = data.grids.find(x => x.id === id); if (!g) return null;
   const D = gs.detail, s = gs.ref[q] || {}, l = gs.sLic[q] || {}, g1 = D.g1[q]?.[id], e = D.eb[q]?.[id], g4 = D.g4[q]?.[id], rec = D.gridB[q]?.[id], rec4 = D.gridB[qShift(q, -4)]?.[id], ai = D.allindB[q]?.[id], ai4 = D.allindB[qShift(q, -4)]?.[id];
   const okC = v => v && v.months === 3 && v.cnt >= 30 && v.amt > 0, okA = v => v && v[3] >= 30 && v[4] === 3 && v[0] - v[1] > 0;
   const items = [
-    { name: GN4[0], grade: g1?.G1, rows: g1 ? [['소속 행정동 임대료 상승률', sgnP(g1.rgR + s.Rs), sgnP(s.Rs)], ['격자 외식 카드매출 증감', sgnP(g1.sgR + s.sgT), sgnP(s.sgT)]] : [], reason: g1 ? '' : !rec ? '외식 카드 결제 자료 없음' : !okC(rec) ? '분기 결제 30건 미만 또는 빠진 달 있음' : !okC(rec4) ? '전년 같은 분기 자료 부족' : '소속 행정동 임대료 자료 없음' },
+    { name: GN4[0], grade: g1?.G1, rows: g1 ? [['소속 행정동 임대료 상승률', lgP(g1.rgR + s.Rs), lgP(s.Rs)], ['격자 외식 카드매출 증감', lgP(g1.sgR + s.sgT), lgP(s.sgT)]] : [], reason: g1 ? '' : !rec ? '외식 카드 결제 자료 없음' : !okC(rec) ? '분기 결제 30건 미만 또는 빠진 달 있음' : !okC(rec4) ? '전년 같은 분기 자료 부족' : '소속 행정동 임대료 자료 없음' },
     { name: GN4[1], grade: e?.G2, weak: e?.weak2 && e?.G2 === '활성', rows: e?.G2 ? [['전년 말 영업 외식업소', `${e.N4}곳`, ''], ['최근 1년 개업 · 폐업', `${e.O}곳 · ${e.C}곳`, ''], ['개업률(추정)', rate(e.oE + l.o), rate(l.o)], ['폐업률(추정)', rate(e.cE + l.c), rate(l.c)], ['서울보다 높을 확률(개업·폐업)', `${pr(e.Po)} · ${pr(e.Pc)}`, '기준 0.8'], ['폐업률이 개업률보다 높을 확률', pr(e.Pcd), '기준 0.8']] : [], reason: e?.G2 ? '' : '전년 말 영업 외식업소 없음' },
     { name: GN4[2], grade: e?.G3, weak: e?.weak3 && e?.G3 === '활성', rows: e?.G3 ? [['영업 업소 평균 영업기간(추정)', mon(e.A_E * l.A), mon(l.A)], ['폐업 업소 평균 영업기간(추정)', e.C >= 1 ? mon(e.C_E * l.C) : '최근 1년 폐업 없음', mon(l.C)], ['서울보다 길 확률(영업·폐업)', `${pr(e.PA)} · ${pr(e.PC)}`, '기준 0.8']] : [], reason: e?.G3 ? '' : '영업 중인 외식업소 없음' },
-    { name: GN4[3], grade: g4?.G4, rows: g4 ? [['외식 매출 비중 변화', ppt(g4.dsR + s.dsS), ppt(s.dsS)], ['비외식 매출 증감', sgnP(g4.gNR + s.gLS), sgnP(s.gLS)], ['전체 매출 증감', sgnP(g4.gTR + s.gTS), sgnP(s.gTS)]] : [], reason: g4 ? '' : !ai ? '전 업종 카드 자료 없음' : !okA(ai) ? '분기 결제 30건 미만 또는 빠진 달 있음' : !okA(ai4) ? '전년 같은 분기 자료 부족' : '기준점 자료 없음' },
+    { name: GN4[3], grade: g4?.G4, rows: g4 ? [['외식 매출 비중 변화', ppt(g4.dsR + s.dsS), ppt(s.dsS)], ['비외식 매출 증감', lgP(g4.gNR + s.gLS), lgP(s.gLS)], ['전체 매출 증감', lgP(g4.gTR + s.gTS), lgP(s.gTS)]] : [], reason: g4 ? '' : !ai ? '전 업종 카드 자료 없음' : !okA(ai) ? '분기 결제 30건 미만 또는 빠진 달 있음' : !okA(ai4) ? '전년 같은 분기 자료 부족' : '기준점 자료 없음' },
   ];
   return { id, dong: g.dong, excluded: !!gs.excluded?.has(id), comp: gs.gridC[q]?.[id] || null, partial: gs.gridP[q]?.[id] || null, items, popup: gs.popups?.grids?.[id] || null };
 }
