@@ -2,7 +2,7 @@ export const NAV = [
   ['overview', '개요', 'home'], ['grades', '등급 모니터링', 'shield'], ['policy', '정책 적용 범위', 'layers'], ['evidence', '연구 근거', 'chart'], ['review', '검토 기록', 'file'],
 ];
 export const SOURCES = [
-  { id: 'plan', label: '2026 지속가능발전계획', org: '성동구', date: '2026.09.23', url: 'https://www.sd.go.kr/main/selectBbsNttView.do?bbsNo=184&key=1473&nttNo=361632', note: '지속가능발전구역 전체와 입점 제한 구역을 구분해 정한 공식 계획' },
+  { id: 'plan', label: '입점 제한 확대 보도자료', org: '성동구', date: '2026.10.07', url: 'https://www.sd.go.kr/main/selectBbsNttView.do?bbsNo=188&nttNo=361969&key=1477', note: '2026.9.23 변경 고시된 지속가능발전계획의 입점 제한 확대(232필지, 12월 시행) 발표. 지번표는 계획 부록 기준' },
   { id: 'support', label: '안심상가 5·11호점 모집 공고', org: '성동구', date: '2025.11.24', url: 'https://www.sd.go.kr/main/selectBbsNttView.do?bbsNo=184&nttNo=353836&key=1473', note: '마감된 모집의 심사 기준 사례(현재 신청 공고 아님)' },
   { id: 'data', label: '상권분석서비스 자료 제공 범위와 일정', org: '서울시', date: '제공기관 안내', url: 'https://golmok.seoul.go.kr/introduce.do', note: '분기 자료 공개 일정 안내(실제 자료 수령일은 기관별로 다름)' },
   { id: 'equivalence', label: '동등성 검정의 원리', org: 'Lakens (2017)', date: '분석 방법', url: 'https://journals.sagepub.com/doi/10.1177/1948550617697177', note: '통계적으로 유의하지 않다는 결과를 효과가 없다는 뜻으로 해석하지 않는 근거' },
