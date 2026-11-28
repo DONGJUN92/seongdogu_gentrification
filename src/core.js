@@ -14,7 +14,7 @@ export const CHECKS = [
   { id: 'time', title: '자료 시점 확인', description: '등급 기준 분기(2026년 1분기), 카드 자료(2026년 8월), 정책 계획(2026년 9월)의 시점 차이를 확인합니다.', source: 'data' },
   { id: 'criteria', title: '개별 심사 증빙 확인', description: '행정동·격자 지표로 신청인의 계약·재무·고용 증빙을 대신할 수 없습니다.', source: 'support' },
   { id: 'uncertainty', title: '자료 부족·등급 변동 확인', description: '자료 부족으로 등급이 없는 지역과 분기마다 등급이 바뀌는 지역을 따로 확인합니다.', source: 'data' },
-  { id: 'future', title: '실제 등급과 예측 구분', description: '다음 분기 예측은 적중률 56% 수준의 참고 정보이므로, 실제 등급을 확인한 뒤 판단합니다.', source: 'spatialcv' },
+  { id: 'future', title: '실제 등급과 예측 구분', description: '다음 분기 예측은 적중률이 현재 등급을 그대로 둘 때와 비슷한(약 79%) 참고 정보이므로, 실제 등급을 확인한 뒤 판단합니다.', source: 'spatialcv' },
 ];
 export const EVIDENCE_GAPS = ['정확한 법정 경계와 개별 적용 요건', '신청인별 임대차 피해 증빙', '정책상 허용할 손실과 오판 기준', '다음 분기 이후 실제 자료로 확인한 예측 적중률'];
 export function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
